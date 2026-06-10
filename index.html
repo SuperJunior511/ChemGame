@@ -15,6 +15,7 @@
         h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2.2rem; }
         .instructions { color: #666; margin-bottom: 20px; font-size: 1rem; }
         
+        /* MULTI-TAB SWITCHER */
         .mode-switcher {
             margin: 20px auto;
             background-color: #def2f1;
@@ -27,8 +28,8 @@
         .mode-btn {
             border: none;
             background: none;
-            padding: 10px 25px;
-            font-size: 1.1rem;
+            padding: 10px 20px;
+            font-size: 1rem;
             font-weight: bold;
             color: #2b7a78;
             border-radius: 25px;
@@ -56,9 +57,9 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
-            max-width: 1100px;
+            max-width: 950px;
             margin: 0 auto;
         }
         .card {
@@ -161,9 +162,11 @@
     <h1>Chemistry Master Deck</h1>
     <p class="instructions">Choose your training system below to memorize symbols and polyatomic ions!</p>
     
+    <!-- EXPANDED THREE-WAY MODE SWITCHER -->
     <div class="mode-switcher">
         <button id="btn-mode-match" class="mode-btn active" onclick="switchGameMode('match')">🧩 Card Match</button>
-        <button id="btn-mode-quiz" class="mode-btn" onclick="switchGameMode('quiz')">📝 Fill-in-the-Blank</button>
+        <button id="btn-mode-quiz-nf" class="mode-btn" onclick="switchGameMode('quiz-nf')">📝 Name ➔ Formula</button>
+        <button id="btn-mode-quiz-fn" class="mode-btn" onclick="switchGameMode('quiz-fn')">🧪 Formula ➔ Name</button>
     </div>
 
     <!-- MATCHING ENGINE DISPLAY -->
@@ -185,13 +188,14 @@
         </div>
     </div>
 
-    <!-- FILL-IN-THE-BLANK CONTAINER -->
+    <!-- FILL-IN-THE-BLANK CONTAINER (SHARED BY BOTH QUIZ MODES) -->
     <div id="quiz-container">
         <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;" id="quiz-progress">Question 1 / 10</div>
         <div id="quiz-question">Sulfate ion</div>
         
-        <input type="text" id="quiz-input" placeholder="Type formula (or use hotkeys below)" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkQuizAnswer(); }">
+        <input type="text" id="quiz-input" placeholder="Type answer here" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkQuizAnswer(); }">
         
+        <!-- CHEMISTRY KEYBOARD (WILL AUTOMATICALLY HIDE WHEN IN FORMULA ➔ NAME MODE) -->
         <div class="chem-keyboard" id="quiz-keyboard">
             <button class="key-btn" onclick="insertChemSymbol('⁺')">⁺</button>
             <button class="key-btn" onclick="insertChemSymbol('²⁺')">²⁺</button>
@@ -203,8 +207,6 @@
             <button class="key-btn" onclick="insertChemSymbol('₃')">₃</button>
             <button class="key-btn" onclick="insertChemSymbol('₄')">₄</button>
             <button class="key-btn" onclick="insertChemSymbol('₇')">₇</button>
-
-
         </div>
 
         <div id="quiz-feedback"></div>
@@ -269,6 +271,7 @@
         let currentSelections = {};
         let quizDeck = [];
         let currentQuizIndex = 0;
+        let activeQuizMode = 'quiz-nf'; // Track whether we want formula or name answers
         function initApp() {
             buildMatchingGame();
             prepareQuizDeck();
@@ -276,20 +279,31 @@
 
         function switchGameMode(mode) {
             const matchBtn = document.getElementById('btn-mode-match');
-            const quizBtn = document.getElementById('btn-mode-quiz');
+            const quizNfBtn = document.getElementById('btn-mode-quiz-nf');
+            const quizFnBtn = document.getElementById('btn-mode-quiz-fn');
+            
             const matchView = document.getElementById('matching-view');
             const quizView = document.getElementById('quiz-container');
 
+            // Reset tab highlights
+            matchBtn.classList.remove('active');
+            quizNfBtn.classList.remove('active');
+            quizFnBtn.classList.remove('active');
+
             if (mode === 'match') {
                 matchBtn.classList.add('active');
-                quizBtn.classList.remove('active');
                 matchView.style.display = 'block';
                 quizView.style.display = 'none';
             } else {
-                matchBtn.classList.remove('active');
-                quizBtn.classList.add('active');
+                activeQuizMode = mode; // Set active mode state ('quiz-nf' or 'quiz-fn')
+                if (mode === 'quiz-nf') {
+                    quizNfBtn.classList.add('active');
+                } else {
+                    quizFnBtn.classList.add('active');
+                }
                 matchView.style.display = 'none';
                 quizView.style.display = 'block';
+                prepareQuizDeck(); // Reshuffle when switching types for maximum training variability
                 loadQuizQuestion();
             }
         }
@@ -374,11 +388,24 @@
 
             const currentQuestion = quizDeck[currentQuizIndex];
             document.getElementById('quiz-progress').textContent = `Question ${currentQuizIndex + 1} / ${quizDeck.length}`;
-            document.getElementById('quiz-question').textContent = currentQuestion.name;
             
             const inputField = document.getElementById('quiz-input');
+            const keyboardField = document.getElementById('quiz-keyboard');
+            
+            // DYNAMIC RENDERING ADJUSTMENT BASED ON ACTIVE TABS
+            if (activeQuizMode === 'quiz-nf') {
+                // Name -> Formula Mode
+                document.getElementById('quiz-question').textContent = currentQuestion.name;
+                inputField.placeholder = "Type formula (or use hotkeys below)";
+                keyboardField.style.display = 'flex'; // Show custom chemistry buttons
+            } else {
+                // Formula -> Name Mode
+                document.getElementById('quiz-question').textContent = currentQuestion.symbol;
+                inputField.placeholder = "Type the English name (e.g. Sulfate ion)";
+                keyboardField.style.display = 'none'; // Hide symbols keyboard pad since they need text
+            }
+            
             inputField.style.display = 'inline-block';
-            document.getElementById('quiz-keyboard').style.display = 'flex';
             inputField.value = "";
             inputField.disabled = false;
             inputField.focus();
@@ -405,25 +432,41 @@
             if (inputField.disabled) return;
 
             const userAnswer = inputField.value.trim();
-            const correctAnswer = quizDeck[currentQuizIndex].symbol;
+            const currentQuestion = quizDeck[currentQuizIndex];
             const feedbackContainer = document.getElementById('quiz-feedback');
 
-            const cleanUser = userAnswer.toLowerCase().replace(/[⁺⁺⁺⁻⁻⁻¹²³₄₃₂₁]/g, m => {
-                return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
-            });
-            const cleanCorrect = correctAnswer.toLowerCase().replace(/[⁺⁻²³₄]/g, m => {
-                return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
-            });
+            if (activeQuizMode === 'quiz-nf') {
+                // Checking code for Formula Answers
+                const cleanUser = userAnswer.toLowerCase().replace(/[⁺⁺⁺⁻⁻⁻¹²³₄₃₂₁]/g, m => {
+                    return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
+                });
+                const cleanCorrect = currentQuestion.symbol.toLowerCase().replace(/[⁺⁻²³₄]/g, m => {
+                    return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
+                });
 
-            if (cleanUser === cleanCorrect || userAnswer === correctAnswer) {
-                feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect formula.</span>";
-                inputField.disabled = true;
-                document.getElementById('btn-next-question').style.display = 'inline-block';
-                document.getElementById('btn-next-question').focus();
+                if (cleanUser === cleanCorrect || userAnswer === currentQuestion.symbol) {
+                    feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect formula.</span>";
+                    inputField.disabled = true;
+                    document.getElementById('btn-next-question').style.display = 'inline-block';
+                    document.getElementById('btn-next-question').focus();
+                } else {
+                    feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Target code matches "${cleanCorrect.toUpperCase()}".</div>`;
+                    inputField.focus();
+                    inputField.select();
+                }
             } else {
-                feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: You can enter standard keys (e.g. "${cleanCorrect.toUpperCase()}") or click the special hotkeys.</div>`;
-                inputField.focus();
-                inputField.select();
+                // Checking code for English Text Name Answers
+                // Tolerates minor spacing and upper/lower case discrepancies to keep it smooth for students
+                if (userAnswer.toLowerCase() === currentQuestion.name.toLowerCase()) {
+                    feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect name matching.</span>";
+                    inputField.disabled = true;
+                    document.getElementById('btn-next-question').style.display = 'inline-block';
+                    document.getElementById('btn-next-question').focus();
+                } else {
+                    feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Pay attention to spelling. Make sure to include 'ion' (e.g. "${currentQuestion.name}").</div>`;
+                    inputField.focus();
+                    inputField.select();
+                }
             }
         }
 
@@ -434,5 +477,3 @@
 
         window.onload = initApp;
     </script>
-</body>
-</html>
