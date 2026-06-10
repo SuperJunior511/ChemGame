@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChemMatch: Dual-Game Master Edition</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #2f3e46;
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+        }
+        h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2.2rem; }
+        .instructions { color: #666; margin-bottom: 20px; font-size: 1rem; }
+        
+        .mode-switcher {
+            margin: 20px auto;
+            background-color: #def2f1;
+            padding: 6px;
+            border-radius: 30px;
+            display: inline-flex;
+            gap: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .mode-btn {
+            border: none;
+            background: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2b7a78;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-btn.active {
+            background-color: #2b7a78;
+            color: white;
+            box-shadow: 0 4px 8px rgba(43, 122, 120, 0.2);
+        }
+
+        .level-section { margin-bottom: 30px; }
+        h2 { 
+            margin-top: 20px; 
+            margin-bottom: 12px;
+            border-bottom: 3px solid;
+            display: inline-block;
+            padding-bottom: 5px;
+            font-size: 1.4rem;
+        }
+        .title-1 { color: #32908f; border-color: #32908f; }
+        .title-2 { color: #e07a5f; border-color: #e07a5f; }
+        .title-3 { color: #3d5a80; border-color: #3d5a80; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            height: 80px; 
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+            border: 3px solid transparent;
+            transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+            user-select: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card.selected-1 { border-color: #32908f; background-color: #e6f2f2; }
+        .card.selected-2 { border-color: #e07a5f; background-color: #fdf0ed; }
+        .card.selected-3 { border-color: #3d5a80; background-color: #eef4f8; }
+        .card.matched {
+            background-color: #26c485 !important;
+            color: white !important;
+            visibility: hidden;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+
+        #quiz-container {
+            max-width: 550px;
+            background: white;
+            margin: 30px auto;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: none;
+        }
+        #quiz-question {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2f3e46;
+            margin-bottom: 20px;
+        }
+        #quiz-input {
+            width: 80%;
+            padding: 12px 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        #quiz-input:focus { border-color: #2b7a78; }
+        
+        .chem-keyboard {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .key-btn {
+            background-color: #f0f3f4;
+            border: 1px solid #dcdde1;
+            color: #2f3e46;
+            padding: 8px 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+        .key-btn:hover { background-color: #dcdde1; transform: translateY(-1px); }
+        .key-btn:active { transform: translateY(1px); }
+
+        #quiz-feedback { font-size: 1.2rem; font-weight: bold; min-height: 25px; margin-bottom: 20px; }
+        .feedback-correct { color: #26c485; }
+        .feedback-wrong { color: #ff6b6b; }
+        .feedback-hint { color: #7f8c8d; font-weight: normal; font-size: 1rem; margin-top: 5px; }
+
+        .reset-container { margin: 40px 0; }
+        .btn-action {
+            background-color: #2b7a78; color: white; border: none;
+            padding: 12px 40px; font-size: 1.1rem; font-weight: bold;
+            border-radius: 30px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-action:hover { background-color: #175856; }
+        .btn-next { background-color: #3d5a80; margin-left: 10px; }
+        .btn-next:hover { background-color: #293e56; }
+    </style>
+</head>
+<body>
+    <h1>Chemistry Master Deck</h1>
+    <p class="instructions">Choose your training system below to memorize symbols and polyatomic ions!</p>
+    
+    <div class="mode-switcher">
+        <button id="btn-mode-match" class="mode-btn active" onclick="switchGameMode('match')">🧩 Card Match</button>
+        <button id="btn-mode-quiz" class="mode-btn" onclick="switchGameMode('quiz')">📝 Fill-in-the-Blank</button>
+    </div>
+
+    <!-- MATCHING ENGINE DISPLAY -->
+    <div id="matching-view">
+        <div class="level-section">
+            <h2 class="title-1">Level 1: Basic Elements & Monatomic Ions</h2>
+            <div class="grid" id="grid-level-1"></div>
+        </div>
+        <div class="level-section">
+            <h2 class="title-2">Level 2: Common Polyatomic Ions</h2>
+            <div class="grid" id="grid-level-2"></div>
+        </div>
+        <div class="level-section">
+            <h2 class="title-3">Level 3: Advanced Metals & Heavy Polyatomics</h2>
+            <div class="grid" id="grid-level-3"></div>
+        </div>
+        <div class="reset-container">
+            <button class="btn-action" onclick="window.location.reload()">Reset Trilogy 🔄</button>
+        </div>
+    </div>
+
+    <!-- FILL-IN-THE-BLANK CONTAINER -->
+    <div id="quiz-container">
+        <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;" id="quiz-progress">Question 1 / 10</div>
+        <div id="quiz-question">Sulfate ion</div>
+        
+        <input type="text" id="quiz-input" placeholder="Type formula (or use hotkeys below)" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkQuizAnswer(); }">
+        
+        <div class="chem-keyboard" id="quiz-keyboard">
+            <button class="key-btn" onclick="insertChemSymbol('⁺')">⁺</button>
+            <button class="key-btn" onclick="insertChemSymbol('²⁺')">²⁺</button>
+            <button class="key-btn" onclick="insertChemSymbol('³⁺')">³⁺</button>
+            <button class="key-btn" onclick="insertChemSymbol('⁻')">⁻</button>
+            <button class="key-btn" onclick="insertChemSymbol('²⁻')">²⁻</button>
+            <button class="key-btn" onclick="insertChemSymbol('³⁻')">³⁻</button>
+            <button class="key-btn" onclick="insertChemSymbol('₂')">₂</button>
+            <button class="key-btn" onclick="insertChemSymbol('₃')">₃</button>
+            <button class="key-btn" onclick="insertChemSymbol('₄')">₄</button>
+            <button class="key-btn" onclick="insertChemSymbol('₇')">₇</button>
+
+
+        </div>
+
+        <div id="quiz-feedback"></div>
+        <div>
+            <button class="btn-action" onclick="checkQuizAnswer()">Submit Answer</button>
+            <button id="btn-next-question" class="btn-action btn-next" onclick="nextQuizQuestion()" style="display: none;">Next Question ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        const chemistryDatabase = [
+            { symbol: "H⁻/H⁺", name: "Hydrogen ion", level: 1 },
+            { symbol: "Na⁺", name: "Sodium ion", level: 1 },
+            { symbol: "K⁺", name: "Potassium ion", level: 1 },
+            { symbol: "Cl⁻", name: "Chloride ion", level: 1 },
+            { symbol: "Ag⁺", name: "Silver ion", level: 1 },
+            { symbol: "F⁻", name: "Fluoride ion", level: 1 },
+            { symbol: "Li⁺", name: "Lithium ion", level: 1 },
+            { symbol: "N³⁻", name: "Nitrogen ion", level: 1 },
+            { symbol: "O²⁻", name: "Oxygen ion", level: 1 },
+            { symbol: "Ca²⁺", name: "Calcium ion", level: 1 },
+            { symbol: "Fe²⁺", name: "Iron(II) ion", level: 1 },
+            { symbol: "Al³⁺", name: "Aluminum ion", level: 1 },
+            { symbol: "Fe³⁺", name: "Iron(III) ion", level: 1 },
+            { symbol: "Zn²⁺", name: "Zinc ion", level: 1 },
+            { symbol: "Mg²⁺", name: "Magnesium ion", level: 1 },
+            { symbol: "Ni²⁺", name: "Nickel(II) ion", level: 1 },
+            { symbol: "S²⁻", name: "Sulphide ion", level: 1 },
+            { symbol: "I⁻", name: "Iodide ion", level: 1 },
+            { symbol: "Br⁻", name: "Bromide ion", level: 2 },
+            { symbol: "P³⁻", name: "Phosphorus ion", level: 2 },
+            { symbol: "Cu²⁺", name: "Copper(II) ion", level: 2 },
+            { symbol: "Cu⁺", name: "Copper(I) ion", level: 2 },
+            { symbol: "Hg⁺", name: "Mercury(I) ion", level: 2 },
+            { symbol: "Hg²⁺", name: "Mercury(II) ion", level: 2 },
+            { symbol: "Be²⁺", name: "Beryllium ion", level: 2 },
+            { symbol: "Ba²⁺", name: "Barium ion", level: 2 },
+            { symbol: "Cr³⁺", name: "Chromium(III) ion", level: 2 },
+            { symbol: "Pb²⁺", name: "Lead(II) ion", level: 2 },
+            { symbol: "Co²⁺", name: "Cobalt(II) ion", level: 2 },
+            { symbol: "CO₃²⁻", name: "Carbonate ion", level: 2 },
+            { symbol: "OH⁻", name: "Hydroxide ion", level: 2 },
+            { symbol: "CN⁻", name: "Cyanide ion", level: 2 },
+            { symbol: "ClO₃⁻", name: "Chlorate ion", level: 2 },
+            { symbol: "ClO⁻", name: "Hypochlorite ion", level: 2 },
+            { symbol: "PO₄³⁻", name: "Phosphate ion", level: 2 },
+            { symbol: "MnO₄⁻", name: "Permanganate ion", level: 2 },
+            { symbol: "CrO₄²⁻", name: "Chromate ion", level: 3 },
+            { symbol: "HCO₃⁻", name: "Hydrogencarbonate ion", level: 3 },
+            { symbol: "HSO₄⁻", name: "Hydrogensulfate ion", level: 3 },
+            { symbol: "S₂O₃²⁻", name: "Thiosulphate ion", level: 3 },
+            { symbol: "SiO₃²⁻", name: "Silicate ion", level: 3 },
+            { symbol: "Cr₂O₇²⁻", name: "Dichromate ion", level: 3 },
+            { symbol: "SO₄²⁻", name: "Sulphate ion", level: 3 },
+            { symbol: "SO₃²⁻", name: "Sulphite ion", level: 3 },
+            { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 },
+            { symbol: "NH₄⁺", name: "Ammonium ion", level: 3 },
+            { symbol: "NO₂⁻", name: "Nitrite ion", level: 3 },
+            { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
+        ];
+
+        let currentSelections = {};
+        let quizDeck = [];
+        let currentQuizIndex = 0;
+        function initApp() {
+            buildMatchingGame();
+            prepareQuizDeck();
+        }
+
+        function switchGameMode(mode) {
+            const matchBtn = document.getElementById('btn-mode-match');
+            const quizBtn = document.getElementById('btn-mode-quiz');
+            const matchView = document.getElementById('matching-view');
+            const quizView = document.getElementById('quiz-container');
+
+            if (mode === 'match') {
+                matchBtn.classList.add('active');
+                quizBtn.classList.remove('active');
+                matchView.style.display = 'block';
+                quizView.style.display = 'none';
+            } else {
+                matchBtn.classList.remove('active');
+                quizBtn.classList.add('active');
+                matchView.style.display = 'none';
+                quizView.style.display = 'block';
+                loadQuizQuestion();
+            }
+        }
+
+        function buildMatchingGame() {
+            for (let lvl = 1; lvl <= 3; lvl++) {
+                const targetGrid = document.getElementById(`grid-level-${lvl}`);
+                if (!targetGrid) continue;
+                targetGrid.innerHTML = "";
+
+                const levelItems = chemistryDatabase.filter(item => item.level === lvl);
+                let cardDeck = [];
+                levelItems.forEach((item, index) => {
+                    cardDeck.push({ type: 'symbol', text: item.symbol, matchKey: `lvl${lvl}-p${index}` });
+                    cardDeck.push({ type: 'name', text: item.name, matchKey: `lvl${lvl}-p${index}` });
+                });
+
+                cardDeck.sort(() => Math.random() - 0.5);
+
+                cardDeck.forEach(cardData => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.textContent = cardData.text;
+                    cardElement.setAttribute('data-matchkey', cardData.matchKey);
+                    cardElement.onclick = function() { handleCardInteraction(cardElement, lvl); };
+                    targetGrid.appendChild(cardElement);
+                });
+            }
+        }
+
+        function handleCardInteraction(element, level) {
+            if (element.classList.contains('matched')) return;
+            if (!currentSelections[level]) currentSelections[level] = [];
+            const activeLevelSelections = currentSelections[level];
+
+            if (activeLevelSelections.includes(element)) {
+                element.classList.remove(`selected-${level}`);
+                currentSelections[level] = activeLevelSelections.filter(el => el !== element);
+                return;
+            }
+
+            if (activeLevelSelections.length >= 2) return;
+            element.classList.add(`selected-${level}`);
+            activeLevelSelections.push(element);
+
+            if (activeLevelSelections.length === 2) {
+                const card1 = activeLevelSelections[0];
+                const card2 = activeLevelSelections[1];
+
+                if (card1.getAttribute('data-matchkey') === card2.getAttribute('data-matchkey')) {
+                    setTimeout(() => {
+                        card1.classList.add('matched');
+                        card2.classList.add('matched');
+                        currentSelections[level] = [];
+                    }, 250);
+                } else {
+                    setTimeout(() => {
+                        card1.classList.remove(`selected-${level}`);
+                        card2.classList.remove(`selected-${level}`);
+                        currentSelections[level] = [];
+                    }, 800);
+                }
+            }
+        }
+
+        function prepareQuizDeck() {
+            quizDeck = [...chemistryDatabase];
+            quizDeck.sort(() => Math.random() - 0.5);
+            currentQuizIndex = 0;
+        }
+
+        function loadQuizQuestion() {
+            if (currentQuizIndex >= quizDeck.length) {
+                document.getElementById('quiz-progress').textContent = "Trilogy Completed! 🎉";
+                document.getElementById('quiz-question').textContent = "Excellent Job Master!";
+                document.getElementById('quiz-input').style.display = 'none';
+                document.getElementById('quiz-keyboard').style.display = 'none';
+                document.getElementById('quiz-feedback').innerHTML = "<span class='feedback-correct'>You cleared all formulas!</span>";
+                document.getElementById('btn-next-question').style.display = 'none';
+                return;
+            }
+
+            const currentQuestion = quizDeck[currentQuizIndex];
+            document.getElementById('quiz-progress').textContent = `Question ${currentQuizIndex + 1} / ${quizDeck.length}`;
+            document.getElementById('quiz-question').textContent = currentQuestion.name;
+            
+            const inputField = document.getElementById('quiz-input');
+            inputField.style.display = 'inline-block';
+            document.getElementById('quiz-keyboard').style.display = 'flex';
+            inputField.value = "";
+            inputField.disabled = false;
+            inputField.focus();
+
+            document.getElementById('quiz-feedback').innerHTML = "";
+            document.getElementById('btn-next-question').style.display = 'none';
+        }
+
+        function insertChemSymbol(char) {
+            const inputField = document.getElementById('quiz-input');
+            if (inputField.disabled) return;
+
+            const startPos = inputField.selectionStart;
+            const endPos = inputField.selectionEnd;
+            const currentText = inputField.value;
+
+            inputField.value = currentText.substring(0, startPos) + char + currentText.substring(endPos, currentText.length);
+            inputField.selectionStart = inputField.selectionEnd = startPos + char.length;
+            inputField.focus();
+        }
+
+        function checkQuizAnswer() {
+            const inputField = document.getElementById('quiz-input');
+            if (inputField.disabled) return;
+
+            const userAnswer = inputField.value.trim();
+            const correctAnswer = quizDeck[currentQuizIndex].symbol;
+            const feedbackContainer = document.getElementById('quiz-feedback');
+
+            const cleanUser = userAnswer.toLowerCase().replace(/[⁺⁺⁺⁻⁻⁻¹²³₄₃₂₁]/g, m => {
+                return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
+            });
+            const cleanCorrect = correctAnswer.toLowerCase().replace(/[⁺⁻²³₄]/g, m => {
+                return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
+            });
+
+            if (cleanUser === cleanCorrect || userAnswer === correctAnswer) {
+                feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect formula.</span>";
+                inputField.disabled = true;
+                document.getElementById('btn-next-question').style.display = 'inline-block';
+                document.getElementById('btn-next-question').focus();
+            } else {
+                feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: You can enter standard keys (e.g. "${cleanCorrect.toUpperCase()}") or click the special hotkeys.</div>`;
+                inputField.focus();
+                inputField.select();
+            }
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            loadQuizQuestion();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
