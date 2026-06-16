@@ -2,39 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ChemMatch: Dual-Game Master Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChemMatch: Ultimate Puzzle Suite</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #f4f7f6;
             color: #2f3e46;
             text-align: center;
-            padding: 15px;
+            padding: 10px;
             margin: 0;
         }
-        h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2.2rem; }
-        .instructions { color: #666; margin-bottom: 20px; font-size: 1rem; }
+        h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2rem; }
+        .instructions { color: #666; margin-bottom: 15px; font-size: 0.95rem; }
         
-        /* MULTI-TAB SWITCHER */
         .mode-switcher {
-            margin: 20px auto;
+            margin: 15px auto;
             background-color: #def2f1;
             padding: 6px;
             border-radius: 30px;
             display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 5px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 950px;
         }
         .mode-btn {
             border: none;
             background: none;
-            padding: 10px 20px;
-            font-size: 1rem;
+            padding: 8px 15px;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #2b7a78;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .mode-btn.active {
             background-color: #2b7a78;
@@ -42,14 +46,14 @@
             box-shadow: 0 4px 8px rgba(43, 122, 120, 0.2);
         }
 
-        .level-section { margin-bottom: 30px; }
+        .level-section { margin-bottom: 25px; }
         h2 { 
-            margin-top: 20px; 
-            margin-bottom: 12px;
+            margin-top: 15px; 
+            margin-bottom: 10px;
             border-bottom: 3px solid;
             display: inline-block;
             padding-bottom: 5px;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
         }
         .title-1 { color: #32908f; border-color: #32908f; }
         .title-2 { color: #e07a5f; border-color: #e07a5f; }
@@ -64,17 +68,17 @@
         }
         .card {
             background: white;
-            height: 80px; 
+            height: 75px; 
             border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0,0,0,0.06);
             border: 3px solid transparent;
-            transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+            transition: all 0.2s ease;
             user-select: none;
             padding: 5px;
             box-sizing: border-box;
@@ -89,98 +93,156 @@
             visibility: hidden;
             opacity: 0;
             transform: scale(0.8);
-            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
             pointer-events: none;
         }
-
         #quiz-container {
             max-width: 550px;
             background: white;
-            margin: 30px auto;
-            padding: 35px;
+            margin: 20px auto;
+            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             display: none;
         }
-        #quiz-question {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2f3e46;
-            margin-bottom: 20px;
-        }
+        #quiz-question { font-size: 1.6rem; font-weight: bold; color: #2f3e46; margin-bottom: 15px; }
         #quiz-input {
-            width: 80%;
-            padding: 12px 20px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            text-align: center;
-            outline: none;
-            margin-bottom: 15px;
+            width: 80%; padding: 12px 20px; font-size: 1.3rem; font-weight: bold;
+            border: 2px solid #ccc; border-radius: 10px; text-align: center; outline: none; margin-bottom: 15px;
         }
         #quiz-input:focus { border-color: #2b7a78; }
         
-        .chem-keyboard {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
+        .chem-keyboard { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .key-btn {
-            background-color: #f0f3f4;
-            border: 1px solid #dcdde1;
-            color: #2f3e46;
-            padding: 8px 16px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            user-select: none;
+            background-color: #f0f3f4; border: 1px solid #dcdde1; color: #2f3e46;
+            padding: 8px 12px; font-size: 1.05rem; font-weight: bold; border-radius: 6px; cursor: pointer; user-select: none;
         }
-        .key-btn:hover { background-color: #dcdde1; transform: translateY(-1px); }
-        .key-btn:active { transform: translateY(1px); }
 
-        #quiz-feedback { font-size: 1.2rem; font-weight: bold; min-height: 25px; margin-bottom: 20px; }
+        #quiz-feedback { font-size: 1.1rem; font-weight: bold; min-height: 25px; margin-bottom: 15px; }
         .feedback-correct { color: #26c485; }
         .feedback-wrong { color: #ff6b6b; }
-        .feedback-hint { color: #7f8c8d; font-weight: normal; font-size: 1rem; margin-top: 5px; }
+        .feedback-hint { color: #7f8c8d; font-weight: normal; font-size: 0.95rem; margin-top: 5px; }
 
-        .reset-container { margin: 40px 0; }
+        #flashcard-container { display: none; max-width: 450px; margin: 20px auto; }
+        .flashcard-wrapper { perspective: 1000px; width: 100%; height: 220px; cursor: pointer; }
+        .flashcard-inner {
+            position: relative; width: 100%; height: 100%; text-align: center;
+            transition: transform 0.6s; transform-style: preserve-3d;
+        }
+        .flashcard-wrapper.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 20px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; box-shadow: 0 8px 20px rgba(0,0,0,0.06); box-sizing: border-box; padding: 20px;
+        }
+        .flashcard-front { background-color: white; color: #2f3e46; border: 3px solid #32908f; }
+        .flashcard-back { background-color: #def2f1; color: #2b7a78; transform: rotateY(180deg); border: 3px solid #2b7a78; }
+        .flashcard-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #7f8c8d; margin-bottom: 5px; }
+        .flashcard-main { font-size: 2.2rem; font-weight: bold; }
+        .flashcard-controls { margin-top: 20px; display: flex; justify-content: center; gap: 15px; }
+
+        .table-scroll-wrapper {
+            max-width: 100%; overflow-x: auto; margin: 15px auto; background: #eef2f3;
+            border-radius: 15px; padding: 12px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+            border: 2px solid #b2bec3; box-sizing: border-box; -webkit-overflow-scrolling: touch; 
+        }
+        .ptable-grid { display: grid; grid-template-columns: repeat(18, 44px); grid-template-rows: repeat(6, 52px); gap: 5px; width: max-content; margin: 0 auto; }
+        
+        .pt-slot {
+            background-color: #d1d8e0; border: 2px dashed #95a5a6; border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-size: 0.85rem; cursor: pointer !important; transition: all 0.2s; color: #4b5563; font-weight: bold;
+            pointer-events: auto !important;
+        }
+        .pt-slot:hover { background-color: #b2bec3; border-color: #2b7a78; color: #2b7a78; }
+        .pt-slot.error-flash { background-color: #ffdddd !important; border-color: #ff7675 !important; animation: shake 0.3s; }
+        
+        .pt-element {
+            background-color: white; border: 2px solid #ccc; border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-size: 0.8rem; box-shadow: 0 3px 6px rgba(0,0,0,0.08); animation: popIn 0.3s ease;
+            pointer-events: none !important;
+        }
+        .pt-num { font-size: 0.6rem; color: #555; align-self: flex-start; padding-left: 4px; margin-top: -2px; font-weight: bold; }
+        .pt-sym { font-weight: bold; font-size: 1.05rem; }
+        .pt-name { font-size: 0.52rem; font-weight: 600; max-width: 100%; white-space: nowrap; overflow: hidden; }
+        
+        .pt-reactive-nonmetal { background-color: #e2f0d9; border-color: #70ad47; color: #2d461e; }
+        .pt-noble-gas { background-color: #fff2cc; border-color: #ffc000; color: #664d00; }
+        .pt-alkali-metal { background-color: #fce4d6; border-color: #ed7d31; color: #9e460a; }
+        .pt-alkaline-earth { background-color: #eddde9; border-color: #b07aa1; color: #59224c; }
+        .pt-metalloid { background-color: #eef4f8; border-color: #8faadc; color: #163857; }
+        .pt-transition-metal { background-color: #deebf7; border-color: #418ab3; color: #103a5c; }
+
+        /* 👑 THE UPDATED CENTER INFOCARD DESIGN */
+        .pt-courtyard-info {
+            grid-row: 2 / span 2;
+            grid-column: 3 / span 10;
+            background-color: #ffffff;
+            border: 2px dashed #2b7a78;
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            box-sizing: border-box;
+            z-index: 5;
+            text-align: center;
+        }
+        .info-title-large { font-size: 1.1rem; font-weight: bold; color: #2b7a78; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-body-large { font-size: 1rem; line-height: 1.4; color: #2f3e46; font-weight: 600; }
+
+        #puzzle-workbench {
+            max-width: 500px; background: white; margin: 20px auto; padding: 20px;
+            border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.06); border: 3px solid #2b7a78;
+        }
+        #current-piece {
+            display: inline-block; background: #eef4f8; border: 2px dashed #3d5a80;
+            padding: 12px 30px; border-radius: 10px; font-size: 1.5rem; font-weight: bold;
+            color: #3d5a80; margin-top: 10px; animation: slideUp 0.2s ease;
+            cursor: help !important;
+        }
+        #puzzle-feedback-text { font-size: 1.1rem; font-weight: bold; margin-top: 5px; color: #e07a5f; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { 0% { transform: translateY(10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+        .reset-container { margin: 30px 0; }
         .btn-action {
-            background-color: #2b7a78; color: white; border: none;
-            padding: 12px 40px; font-size: 1.1rem; font-weight: bold;
-            border-radius: 30px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: #2b7a78; color: white; border: none; padding: 10px 30px;
+            font-size: 1rem; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .btn-action:hover { background-color: #175856; }
         .btn-next { background-color: #3d5a80; margin-left: 10px; }
-        .btn-next:hover { background-color: #293e56; }
     </style>
 </head>
 <body>
     <h1>Chemistry Master Deck</h1>
-    <p class="instructions">Choose your training system below to memorize symbols and polyatomic ions!</p>
+    <p class="instructions">Choose your training system below to memorize symbols, formulas, and names!</p>
     
-    <!-- EXPANDED THREE-WAY MODE SWITCHER -->
+    <!-- FIVE-WAY MODE SWITCHER -->
     <div class="mode-switcher">
         <button id="btn-mode-match" class="mode-btn active" onclick="switchGameMode('match')">🧩 Card Match</button>
         <button id="btn-mode-quiz-nf" class="mode-btn" onclick="switchGameMode('quiz-nf')">📝 Name ➔ Formula</button>
         <button id="btn-mode-quiz-fn" class="mode-btn" onclick="switchGameMode('quiz-fn')">🧪 Formula ➔ Name</button>
+        <button id="btn-mode-flash" class="mode-btn" onclick="switchGameMode('flash')">📇 Flashcards</button>
+        <button id="btn-mode-ptable" class="mode-btn" onclick="switchGameMode('ptable')">📅 Periodic Table Puzzle</button>
     </div>
 
-    <!-- MATCHING ENGINE DISPLAY -->
+    <!-- MODE 1: MATCHING ENGINE DISPLAY -->
     <div id="matching-view">
         <div class="level-section">
-            <h2 class="title-1">Level 1</h2>
+            <h2 class="title-1">Level 1: Basic Elements & Monatomic Ions</h2>
             <div class="grid" id="grid-level-1"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-2">Level 2</h2>
+            <h2 class="title-2">Level 2: Common Polyatomic Ions</h2>
             <div class="grid" id="grid-level-2"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-3">Level 3</h2>
+            <h2 class="title-3">Level 3: Advanced Metals & Heavy Polyatomics</h2>
             <div class="grid" id="grid-level-3"></div>
         </div>
         <div class="reset-container">
@@ -188,14 +250,13 @@
         </div>
     </div>
 
-    <!-- FILL-IN-THE-BLANK CONTAINER (SHARED BY BOTH QUIZ MODES) -->
+    <!-- MODES 2 & 3: FILL-IN-THE-BLANK CONTAINER -->
     <div id="quiz-container">
         <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;" id="quiz-progress">Question 1 / 10</div>
-        <div id="quiz-question">Sulfate ion</div>
+        <div id="quiz-question">-</div>
         
         <input type="text" id="quiz-input" placeholder="Type answer here" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); checkQuizAnswer(); }">
         
-        <!-- CHEMISTRY KEYBOARD (WILL AUTOMATICALLY HIDE WHEN IN FORMULA ➔ NAME MODE) -->
         <div class="chem-keyboard" id="quiz-keyboard">
             <button class="key-btn" onclick="insertChemSymbol('⁺')">⁺</button>
             <button class="key-btn" onclick="insertChemSymbol('²⁺')">²⁺</button>
@@ -206,7 +267,6 @@
             <button class="key-btn" onclick="insertChemSymbol('₂')">₂</button>
             <button class="key-btn" onclick="insertChemSymbol('₃')">₃</button>
             <button class="key-btn" onclick="insertChemSymbol('₄')">₄</button>
-            <button class="key-btn" onclick="insertChemSymbol('₇')">₇</button>
         </div>
 
         <div id="quiz-feedback"></div>
@@ -216,7 +276,60 @@
         </div>
     </div>
 
+    <!-- MODE 4: FLASHCARD CONTAINER -->
+    <div id="flashcard-container">
+        <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 10px;" id="flash-progress">Card 1 / 18</div>
+        <div class="flashcard-wrapper" onclick="toggleFlashcardFlip(this)">
+            <div class="flashcard-inner">
+                <div class="flashcard-front">
+                    <div class="flashcard-title" id="flash-front-title">Formula / Symbol</div>
+                    <div class="flashcard-main" id="flash-front-text">H⁺</div>
+                </div>
+                <div class="flashcard-back">
+                    <div class="flashcard-title">English Chemical Name</div>
+                    <div class="flashcard-main" style="font-size: 2rem;" id="flash-back-text">Hydrogen ion</div>
+                </div>
+            </div>
+        </div>
+        <div class="flashcard-controls">
+            <button class="btn-action" style="background-color: #3d5a80;" onclick="prevFlashcard()">⬅️ Prev</button>
+            <button class="btn-action" style="background-color: #3d5a80;" onclick="nextFlashcard()">Next ➡️</button>
+        </div>
+    </div>
+
+    <!-- MODE 5: UPGRADED 6-ROW SCROLLABLE PUZZLE CONTAINER -->
+    <div id="ptable-container">
+        <div style="font-size: 1.1rem; color: #3d5a80; font-weight: bold; margin-bottom: 10px;" id="pt-score">Elements Slotted: 0 / 30</div>
+        
+        <div class="table-scroll-wrapper">
+            <!-- Group Columns correctly labeled G1 to G7, and G0 for Noble Gases -->
+            <div style="display: grid; grid-template-columns: repeat(18, 44px); gap: 5px; width: max-content; margin: 0 auto 5px auto; font-weight: bold; color: #2b7a78; font-size: 0.8rem; text-align: center;">
+                <div>G1</div><div>G2</div><div style="grid-column: span 10; color: #3d5a80; letter-spacing: 2px;">TRANSITION METALS</div><div>G3</div><div>G4</div><div>G5</div><div>G6</div><div>G7</div><div>G0</div>
+            </div>
+            
+            <!-- ⚡ THE MAIN CONTAINER HOUSING THE LIVE ELEMENT TILES -->
+            <div class="ptable-grid" id="ptable-grid-element">
+                <!-- 👑 BRAND NEW: The Center Courtyard Box mapped precisely via CSS coordinates -->
+                <div class="pt-courtyard-info" id="pt-info-center">
+                    <div class="info-title-large" id="pt-info-title">Group Properties</div>
+                    <div class="info-body-large" id="pt-info-body">Place elements into the table to explore their family group characteristics!</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tap-to-Place Informational Workbench Box -->
+        <div id="puzzle-workbench">
+            <div style="font-size: 0.95rem; color: #666; font-weight: bold;">💡 Tap the target Atomic Number on the table above to place:</div>
+            <div id="current-piece">H - Hydrogen</div>
+            <div id="puzzle-feedback-text"></div>
+        </div>
+        
+        <div class="reset-container" style="margin-top: 15px;">
+            <button class="btn-action" style="background-color: #3d5a80;" onclick="resetPeriodicTablePuzzle()">Restart Table Puzzle 🔄</button>
+        </div>
+    </div>
     <script>
+        // MASTER CENTRAL DATABASE ARRAY FOR GAMES 1, 2, AND 3
         const chemistryDatabase = [
             { symbol: "H⁻", name: "Hydride ion", level: 1 },
             { symbol: "H⁺", name: "Hydrogen ion", level: 1 },
@@ -268,46 +381,87 @@
             { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
         ];
 
+        // CONFIGURATION DATA FILE FOR THE PERIODIC TABLE PUZZLE (NOW WITH SCIENTIFIC GROUPS & CURRICULUM CHARACTERISTICS)
+        const periodicTableData = [
+            { num: 1, sym: "H", name: "Hydrogen", row: 1, col: 1, type: "pt-reactive-nonmetal", group: "Group 1", char: "Reactive Non-metal gas with 1 valence electron." },
+            { num: 2, sym: "He", name: "Helium", row: 1, col: 18, type: "pt-noble-gas", group: "Group 0", char: "Noble Gas with a full outer shell; completely unreactive (inert)." },
+            { num: 3, sym: "Li", name: "Lithium", row: 2, col: 1, type: "pt-alkali-metal", group: "Group 1", char: "Alkali Metal; soft, low density, and reacts with water to form an alkaline solution." },
+            { num: 4, sym: "Be", name: "Beryllium", row: 2, col: 2, type: "pt-alkaline-earth", group: "Group 2", char: "Alkaline Earth Metal; harder and less reactive than Group 1." },
+            { num: 5, sym: "B", name: "Boron", row: 2, col: 13, type: "pt-metalloid", group: "Group 3", char: "Metalloid; shares properties of both metals and non-metals." },
+            { num: 6, sym: "C", name: "Carbon", row: 2, col: 14, type: "pt-reactive-nonmetal", group: "Group 4", char: "Non-metal element; forms four covalent bonds and makes up organic molecules." },
+            { num: 7, sym: "N", name: "Nitrogen", row: 2, col: 15, type: "pt-reactive-nonmetal", group: "Group 5", char: "Non-metal gas; unreactive diatomic molecules that make up 78% of air." },
+            { num: 8, sym: "O", name: "Oxygen", row: 2, col: 16, type: "pt-reactive-nonmetal", group: "Group 6", char: "Reactive non-metal gas; essential for aerobic respiration." },
+            { num: 9, sym: "F", name: "Fluorine", row: 2, col: 17, type: "pt-reactive-nonmetal", group: "Group 7", char: "Halogen; pale yellow gas, highly reactive non-metal that forms salts." },
+            { num: 10, sym: "Ne", name: "Neon", row: 2, col: 18, type: "pt-noble-gas", group: "Group 0", char: "Noble Gas; unreactive gas with a stable octet structure (8 valence electrons)." },
+            { num: 11, sym: "Na", name: "Sodium", row: 3, col: 1, type: "pt-alkali-metal", group: "Group 1", char: "Alkali Metal; reacts vigorously with water and burns with a bright yellow flame." },
+            { num: 12, sym: "Mg", name: "Magnesium", row: 3, col: 2, type: "pt-alkaline-earth", group: "Group 2", char: "Alkaline Earth Metal; burns with a brilliant white light to form an oxide." },
+            { num: 13, sym: "Al", name: "Aluminium", row: 3, col: 13, type: "pt-metalloid", group: "Group 3", char: "Post-transition metal; low density and protected by a strong oxide layer." },
+            { num: 14, sym: "Si", name: "Silicon", row: 3, col: 14, type: "pt-metalloid", group: "Group 4", char: "Metalloid; semiconductor widely used in electrical engineering microchips." },
+            { num: 15, sym: "P", name: "Phosphorus", row: 3, col: 15, type: "pt-reactive-nonmetal", group: "Group 5", char: "Reactive non-metal solid solid with 5 valence electrons." },
+            { num: 16, sym: "S", name: "Sulfur", row: 3, col: 16, type: "pt-reactive-nonmetal", group: "Group 6", char: "Brittle yellow non-metal solid; forms acidic dioxide gas when burned." },
+            { num: 17, sym: "Cl", name: "Chlorine", row: 3, col: 17, type: "pt-reactive-nonmetal", group: "Group 7", char: "Halogen; greenish-yellow toxic gas used as a pool disinfectant." },
+            { num: 18, sym: "Ar", name: "Argon", row: 3, col: 18, type: "pt-noble-gas", group: "Group 0", char: "Noble Gas; completely inert atmosphere used inside filament light bulbs." },
+            { num: 19, sym: "K", name: "Potassium", row: 4, col: 1, type: "pt-alkali-metal", group: "Group 1", char: "Alkali Metal; highly reactive, stored under oil, burns with a lilac flame." },
+            { num: 20, sym: "Ca", name: "Calcium", row: 4, col: 2, type: "pt-alkaline-earth", group: "Group 2", char: "Alkaline Earth Metal; key component in building bones, limestone, and chalk." },
+            
+            // Transition Valley and Heavy Blocks
+            { num: 25, sym: "Mn", name: "Manganese", row: 4, col: 7, type: "pt-transition-metal", group: "Transition Element", char: "Transition metal; high melting point, high density, and forms colorful variable oxidation states." },
+            { num: 26, sym: "Fe", name: "Iron", row: 4, col: 8, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; widely used in construction alloys (steel) and exhibits magnetic traits." },
+            { num: 27, sym: "Co", name: "Cobalt", row: 4, col: 9, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; magnetic metal used in blue glass pigments and robust superalloys." },
+            { num: 28, sym: "Ni", name: "Nickel", row: 4, col: 10, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; highly resistant to corrosion, used widely in electroplating and coins." },
+            { num: 29, sym: "Cu", name: "Copper", row: 4, col: 11, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; reddish-gold color, exceptional conductor of electricity and heat." },
+            { num: 30, sym: "Zn", name: "Zinc", row: 4, col: 12, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; bluish-white element used to galvanize iron structures against rust." },
+            { num: 47, sym: "Ag", name: "Silver", row: 5, col: 11, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; best conductor of electricity among all metals, highly reflective." },
+            { num: 53, sym: "I", name: "Iodine", row: 5, col: 17, type: "pt-reactive-nonmetal", group: "Group 7", char: "Halogen; shiny dark-grey crystal solid that vaporizes directly into a violet gas." },
+            { num: 80, sym: "Hg", name: "Mercury", row: 6, col: 12, type: "pt-transition-metal", group: "Transition Element", char: "Transition Metal; uniquely existing as a liquid metal at room temperature." },
+            { num: 82, sym: "Pb", name: "Lead", row: 6, col: 14, type: "pt-transition-metal", group: "Heavy Metal", char: "Post-transition metal; very dense, toxic, soft, absorbs radiation shieldings." }
+        ];
+
         let currentSelections = {};
         let quizDeck = [];
         let currentQuizIndex = 0;
-        let activeQuizMode = 'quiz-nf'; // Track whether we want formula or name answers
+        let activeQuizMode = 'quiz-nf';
+        let flashDeck = [];
+        let currentFlashIndex = 0;
+        let ptableDeck = [];
+        let activePuzzleElement = null;
+        let elementsSolvedCount = 0;
         function initApp() {
             buildMatchingGame();
             prepareQuizDeck();
+            prepareFlashcards();
+            resetPeriodicTablePuzzle();
         }
 
         function switchGameMode(mode) {
-            const matchBtn = document.getElementById('btn-mode-match');
-            const quizNfBtn = document.getElementById('btn-mode-quiz-nf');
-            const quizFnBtn = document.getElementById('btn-mode-quiz-fn');
-            
-            const matchView = document.getElementById('matching-view');
-            const quizView = document.getElementById('quiz-container');
+            const tabs = ['match', 'quiz-nf', 'quiz-fn', 'flash', 'ptable'];
+            const containers = {
+                'match': document.getElementById('matching-view'),
+                'quiz-nf': document.getElementById('quiz-container'),
+                'quiz-fn': document.getElementById('quiz-container'),
+                'flash': document.getElementById('flashcard-container'),
+                'ptable': document.getElementById('ptable-container')
+            };
 
-            // Reset tab highlights
-            matchBtn.classList.remove('active');
-            quizNfBtn.classList.remove('active');
-            quizFnBtn.classList.remove('active');
+            tabs.forEach(t => document.getElementById(`btn-mode-${t}`).classList.remove('active'));
+            Object.values(containers).forEach(c => { if(c) c.style.display = 'none'; });
 
-            if (mode === 'match') {
-                matchBtn.classList.add('active');
-                matchView.style.display = 'block';
-                quizView.style.display = 'none';
-            } else {
-                activeQuizMode = mode; // Set active mode state ('quiz-nf' or 'quiz-fn')
-                if (mode === 'quiz-nf') {
-                    quizNfBtn.classList.add('active');
-                } else {
-                    quizFnBtn.classList.add('active');
-                }
-                matchView.style.display = 'none';
-                quizView.style.display = 'block';
-                prepareQuizDeck(); // Reshuffle when switching types for maximum training variability
+            document.getElementById(`btn-mode-` + mode).classList.add('active');
+            containers[mode].style.display = 'block';
+
+            if (mode === 'quiz-nf' || mode === 'quiz-fn') {
+                activeQuizMode = mode;
+                prepareQuizDeck();
                 loadQuizQuestion();
+            } else if (mode === 'flash') {
+                prepareFlashcards();
+                loadFlashcard();
+            } else if (mode === 'ptable') {
+                resetPeriodicTablePuzzle();
             }
         }
 
+        /* 👑 FIXED MATCHING LOOPS: FULLY INTEGRATED IN ONE UNBROKEN CONTAINER */
         function buildMatchingGame() {
             for (let lvl = 1; lvl <= 3; lvl++) {
                 const targetGrid = document.getElementById(`grid-level-${lvl}`);
@@ -316,9 +470,9 @@
 
                 const levelItems = chemistryDatabase.filter(item => item.level === lvl);
                 let cardDeck = [];
-                levelItems.forEach((item, index) => {
-                    cardDeck.push({ type: 'symbol', text: item.symbol, matchKey: `lvl${lvl}-p${index}` });
-                    cardDeck.push({ type: 'name', text: item.name, matchKey: `lvl${lvl}-p${index}` });
+                levelItems.forEach((item) => {
+                    cardDeck.push({ type: 'symbol', text: item.symbol, matchKey: item.name });
+                    cardDeck.push({ type: 'name', text: item.name, matchKey: item.name });
                 });
 
                 cardDeck.sort(() => Math.random() - 0.5);
@@ -374,7 +528,6 @@
             quizDeck.sort(() => Math.random() - 0.5);
             currentQuizIndex = 0;
         }
-
         function loadQuizQuestion() {
             if (currentQuizIndex >= quizDeck.length) {
                 document.getElementById('quiz-progress').textContent = "Trilogy Completed! 🎉";
@@ -392,17 +545,14 @@
             const inputField = document.getElementById('quiz-input');
             const keyboardField = document.getElementById('quiz-keyboard');
             
-            // DYNAMIC RENDERING ADJUSTMENT BASED ON ACTIVE TABS
             if (activeQuizMode === 'quiz-nf') {
-                // Name -> Formula Mode
                 document.getElementById('quiz-question').textContent = currentQuestion.name;
                 inputField.placeholder = "Type formula (or use hotkeys below)";
-                keyboardField.style.display = 'flex'; // Show custom chemistry buttons
+                keyboardField.style.display = 'flex';
             } else {
-                // Formula -> Name Mode
                 document.getElementById('quiz-question').textContent = currentQuestion.symbol;
                 inputField.placeholder = "Type the English name (e.g. Sulfate ion)";
-                keyboardField.style.display = 'none'; // Hide symbols keyboard pad since they need text
+                keyboardField.style.display = 'none';
             }
             
             inputField.style.display = 'inline-block';
@@ -417,11 +567,9 @@
         function insertChemSymbol(char) {
             const inputField = document.getElementById('quiz-input');
             if (inputField.disabled) return;
-
             const startPos = inputField.selectionStart;
             const endPos = inputField.selectionEnd;
             const currentText = inputField.value;
-
             inputField.value = currentText.substring(0, startPos) + char + currentText.substring(endPos, currentText.length);
             inputField.selectionStart = inputField.selectionEnd = startPos + char.length;
             inputField.focus();
@@ -430,20 +578,17 @@
         function checkQuizAnswer() {
             const inputField = document.getElementById('quiz-input');
             if (inputField.disabled) return;
-
             const userAnswer = inputField.value.trim();
             const currentQuestion = quizDeck[currentQuizIndex];
             const feedbackContainer = document.getElementById('quiz-feedback');
 
             if (activeQuizMode === 'quiz-nf') {
-                // Checking code for Formula Answers
                 const cleanUser = userAnswer.toLowerCase().replace(/[⁺⁺⁺⁻⁻⁻¹²³₄₃₂₁]/g, m => {
                     return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
                 });
                 const cleanCorrect = currentQuestion.symbol.toLowerCase().replace(/[⁺⁻²³₄]/g, m => {
                     return m === '⁺' ? '+' : m === '⁻' ? '-' : m === '²' ? '2' : m === '³' ? '3' : m === '₄' ? '4' : m;
                 });
-
                 if (cleanUser === cleanCorrect || userAnswer === currentQuestion.symbol) {
                     feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect formula.</span>";
                     inputField.disabled = true;
@@ -455,25 +600,118 @@
                     inputField.select();
                 }
             } else {
-                // Checking code for English Text Name Answers
-                // Tolerates minor spacing and upper/lower case discrepancies to keep it smooth for students
                 if (userAnswer.toLowerCase() === currentQuestion.name.toLowerCase()) {
                     feedbackContainer.innerHTML = "<span class='feedback-correct'>✓ Correct! Perfect name matching.</span>";
                     inputField.disabled = true;
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
                 } else {
-                    feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Pay attention to spelling. Make sure to include 'ion' (e.g. "${currentQuestion.name}").</div>`;
+                    feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Include 'ion' (e.g. "${currentQuestion.name}").</div>`;
                     inputField.focus();
                     inputField.select();
                 }
             }
         }
 
-        function nextQuizQuestion() {
-            currentQuizIndex++;
-            loadQuizQuestion();
+        function nextQuizQuestion() { currentQuizIndex++; loadQuizQuestion(); }
+        function prepareFlashcards() { flashDeck = [...chemistryDatabase]; flashDeck.sort(() => Math.random() - 0.5); currentFlashIndex = 0; }
+        function toggleFlashcardFlip(element) { element.classList.toggle('flipped'); }
+        function nextFlashcard() { if (currentFlashIndex < flashDeck.length - 1) { currentFlashIndex++; loadFlashcard(); } }
+        function prevFlashcard() { if (currentFlashIndex > 0) { currentFlashIndex--; loadFlashcard(); } }
+
+        function loadFlashcard() {
+            const currentCard = flashDeck[currentFlashIndex];
+            const wrapper = document.querySelector('.flashcard-wrapper');
+            wrapper.classList.remove('flipped');
+            setTimeout(() => {
+                document.getElementById('flash-progress').textContent = `Card ${currentFlashIndex + 1} / ${flashDeck.length}`;
+                document.getElementById('flash-front-text').textContent = currentCard.symbol;
+                document.getElementById('flash-back-text').textContent = currentCard.name;
+            }, 150);
+        }
+        // --- 📅 UPGRADED PERIODIC TABLE PUZZLE ENGINE WITH CENTER COURTYARD DATA INJECTION ---
+        function resetPeriodicTablePuzzle() {
+            elementsSolvedCount = 0;
+            document.getElementById('pt-score').textContent = `Elements Slotted: 0 / 30`;
+            document.getElementById('puzzle-feedback-text').innerHTML = "";
+            document.getElementById('puzzle-workbench').style.display = 'block';
+            
+            // Reset Courtyard Infocard view to default layout
+            document.getElementById('pt-info-title').textContent = "Group Properties";
+            document.getElementById('pt-info-body').textContent = "Place elements into the table to explore their family group characteristics!";
+            
+            ptableDeck = [...periodicTableData];
+            ptableDeck.sort(() => Math.random() - 0.5);
+            buildEmptyTableGrid();
+            drawNextPuzzlePiece();
+        }
+
+        function buildEmptyTableGrid() {
+            const grid = document.getElementById('ptable-grid-element');
+            const courtyardCard = document.getElementById('pt-info-center');
+            grid.innerHTML = "";
+            grid.appendChild(courtyardCard); // Preserve our central panel slot layout
+
+            periodicTableData.forEach(cell => {
+                const slot = document.createElement('div');
+                slot.className = 'pt-slot';
+                slot.style.gridRow = cell.row;
+                slot.style.gridColumn = cell.col;
+                slot.textContent = cell.num;
+                slot.onclick = function() { handleSlotClick(slot, cell); };
+                grid.appendChild(slot);
+            });
+        }
+
+        function drawNextPuzzlePiece() {
+            if (ptableDeck.length === 0) {
+                document.getElementById('pt-score').textContent = "🏆 Table Puzzle Solved!";
+                document.getElementById('puzzle-workbench').style.display = 'none';
+                
+                // Show grand finish in courtyard card block
+                document.getElementById('pt-info-title').textContent = "Congratulations! 🎉";
+                document.getElementById('pt-info-body').textContent = "You've successfully mapped the entire expanded element matrix layout!";
+                return;
+            }
+            activePuzzleElement = ptableDeck[ptableDeck.length - 1];
+            document.getElementById('current-piece').textContent = `${activePuzzleElement.sym} - ${activePuzzleElement.name}`;
+        }
+
+        function handleSlotClick(slotElement, cellConfig) {
+            if (!activePuzzleElement || slotElement.classList.contains('pt-element')) return;
+            const feedback = document.getElementById('puzzle-feedback-text');
+
+            if (cellConfig.num === activePuzzleElement.num) {
+                slotElement.className = `pt-element ${activePuzzleElement.type}`;
+                slotElement.innerHTML = `
+                    <div class="pt-num">${activePuzzleElement.num}</div>
+                    <div class="pt-sym">${activePuzzleElement.sym}</div>
+                    <div class="pt-name">${activePuzzleElement.name}</div>
+                `;
+                
+                // 👑 INJECT SYSTEM PROPERTIES DIRECTLY INTO THE NEW CENTRAL COURTYARD BOX
+                document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activePuzzleElement.group})`;
+                document.getElementById('pt-info-body').innerHTML = activePuzzleElement.char;
+                
+                feedback.innerHTML = `<span style="color: #26c485;">✓ Correct! ${activePuzzleElement.name} placed.</span>`;
+                
+                ptableDeck.pop();
+                elementsSolvedCount++;
+                document.getElementById('pt-score').textContent = `Elements Slotted: ${elementsSolvedCount} / 30`;
+                drawNextPuzzlePiece();
+            } else {
+                slotElement.classList.add('error-flash');
+                feedback.innerHTML = `<span style="color: #ff6b6b;">✗ Wrong Spot! Try again.</span>`;
+                
+                // 💡 INJECT EDUCATIONAL HINT DIRECTLY INTO CENTRAL COURTYARD BOX ON ERROR
+                document.getElementById('pt-info-title').textContent = "Hint Needed?";
+                document.getElementById('pt-info-body').textContent = `${activePuzzleElement.name} belongs to the ${activePuzzleElement.group} block. Look closer at the structure layout.`;
+                
+                setTimeout(() => { slotElement.classList.remove('error-flash'); }, 400);
+            }
         }
 
         window.onload = initApp;
     </script>
+</body>
+</html>
