@@ -431,6 +431,8 @@
             prepareQuizDeck();
             prepareFlashcards();
             resetPeriodicTablePuzzle();
+            // ⚡ THE BUG FIX: Force the periodic table to hide immediately on initial page boot
+            document.getElementById('ptable-container').style.display = 'none';
         }
 
         function switchGameMode(mode) {
