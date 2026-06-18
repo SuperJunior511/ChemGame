@@ -718,7 +718,7 @@
                 }
             }, 150);
         }
-        // --- 📅 PERIODIC TABLE PUZZLE ENGINE ---
+        // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH FIXES ---
         function resetPeriodicTablePuzzle() {
             elementsSolvedCount = 0;
             document.getElementById('pt-score').textContent = `Elements Slotted: 0 / 30`;
@@ -763,7 +763,6 @@
             activePuzzleElement = ptableDeck[ptableDeck.length - 1];
             document.getElementById('current-piece').textContent = `${activePuzzleElement.sym} - ${activePuzzleElement.name}`;
         }
-
         function handleSlotClick(slotElement, cellConfig) {
             if (!activePuzzleElement || slotElement.classList.contains('pt-element')) return;
             const feedback = document.getElementById('puzzle-feedback-text');
@@ -776,7 +775,7 @@
                     <div class="pt-name">${activePuzzleElement.name}</div>
                 `;
                 
-                document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activeActivePuzzleElement ? activePuzzleElement.group : ''})`;
+                // 👑 完美修復：使用乾淨無誤的變數，將家族屬性與特徵100%注入中央大字卡中
                 document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activePuzzleElement.group})`;
                 document.getElementById('pt-info-body').innerHTML = activePuzzleElement.char;
                 
@@ -786,7 +785,7 @@
                 elementsSolvedCount++;
                 document.getElementById('pt-score').textContent = `Elements Slotted: ${elementsSolvedCount} / 30`;
                 
-                // Adds +15 points strictly to the Table Puzzle score bucket
+                // 🏆 完美修復：點擊成功時，將 15 分順暢加入週期表專屬計分板中，絕不再卡死
                 addGamePoints(15);
                 
                 drawNextPuzzlePiece();
@@ -794,10 +793,11 @@
                 slotElement.classList.add('error-flash');
                 feedback.innerHTML = `<span style="color: #ff6b6b;">✗ Wrong Spot! Try again.</span>`;
                 
+                // 💡 答錯時，同樣安全地將教學提示注入中央大字卡
                 document.getElementById('pt-info-title').textContent = "Hint Needed?";
                 document.getElementById('pt-info-body').textContent = `${activePuzzleElement.name} belongs to the ${activePuzzleElement.group} block. Look closer at the structure layout.`;
                 
-                // Deducts -5 points strictly from the Table Puzzle score bucket
+                // 🏆 週期表答錯懲罰：扣 5 分
                 addGamePoints(-5);
                 
                 setTimeout(() => { slotElement.classList.remove('error-flash'); }, 400);
@@ -808,3 +808,4 @@
     </script>
 </body>
 </html>
+
