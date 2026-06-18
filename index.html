@@ -16,6 +16,29 @@
         h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2rem; }
         .instructions { color: #666; margin-bottom: 15px; font-size: 0.95rem; }
         
+        /* 🏆 UPGRADED STICKY ANCHOR LIVE FRACTIONAL SCOREBOARD BADGE */
+        .score-banner {
+            background-color: #2b7a78;
+            color: white;
+            padding: 10px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(43, 122, 120, 0.35);
+            
+            /* ⚡ THE STICKY OVERRIDE CORRECTION */
+            position: -webkit-sticky; /* Full Safari & iOS capability rendering */
+            position: sticky;
+            top: 10px; /* Snaps exactly 10 pixels away from top device glass pane */
+            z-index: 1000; /* Forces banner layer to float securely directly over scrolling elements */
+            margin: 5px auto 20px auto;
+        }
+        #score-label { text-transform: capitalize; }
+        #score-display-box { background: #def2f1; color: #2b7a78; padding: 2px 15px; border-radius: 15px; font-family: monospace; font-size: 1.3rem; }
+
         .mode-switcher {
             margin: 15px auto;
             background-color: #def2f1;
@@ -123,6 +146,22 @@
         .feedback-hint { color: #7f8c8d; font-weight: normal; font-size: 0.95rem; margin-top: 5px; }
 
         #flashcard-container { display: none; max-width: 450px; margin: 20px auto; }
+        
+        .flash-switcher {
+            margin: 0 auto 20px auto;
+            background-color: #def2f1;
+            padding: 4px;
+            border-radius: 20px;
+            display: inline-flex;
+            gap: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .flash-sw-btn {
+            border: none; background: none; padding: 6px 14px; font-size: 0.85rem;
+            font-weight: bold; color: #2b7a78; border-radius: 15px; cursor: pointer; transition: all 0.2s;
+        }
+        .flash-sw-btn.active { background-color: #2b7a78; color: white; }
+
         .flashcard-wrapper { perspective: 1000px; width: 100%; height: 220px; cursor: pointer; }
         .flashcard-inner {
             position: relative; width: 100%; height: 100%; text-align: center;
@@ -173,7 +212,6 @@
         .pt-metalloid { background-color: #eef4f8; border-color: #8faadc; color: #163857; }
         .pt-transition-metal { background-color: #deebf7; border-color: #418ab3; color: #103a5c; }
 
-        /* 👑 THE UPDATED CENTER INFOCARD DESIGN */
         .pt-courtyard-info {
             grid-row: 2 / span 2;
             grid-column: 3 / span 10;
@@ -205,10 +243,6 @@
         }
         #puzzle-feedback-text { font-size: 1.1rem; font-weight: bold; margin-top: 5px; color: #e07a5f; }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-        @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes slideUp { 0% { transform: translateY(10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-
         .reset-container { margin: 30px 0; }
         .btn-action {
             background-color: #2b7a78; color: white; border: none; padding: 10px 30px;
@@ -222,6 +256,15 @@
     <h1>Chemistry Master Deck</h1>
     <p class="instructions">Choose your training system below to memorize symbols, formulas, and names!</p>
     
+    <!-- 🏆 FRACTIONAL LIVE SCORE BOARD DISPLAY BADGE (NOW WITH STICKY ANCHORING) -->
+    <div class="score-banner" id="game-score-banner">
+        <span id="score-label">🧩 Card Match Score:</span>
+        <span id="score-display-box">
+            <span id="score-current">0</span> / <span id="score-full">480</span>
+        </span>
+    </div>
+    <br>
+
     <!-- FIVE-WAY MODE SWITCHER -->
     <div class="mode-switcher">
         <button id="btn-mode-match" class="mode-btn active" onclick="switchGameMode('match')">🧩 Card Match</button>
@@ -276,18 +319,23 @@
         </div>
     </div>
 
-    <!-- MODE 4: FLASHCARD CONTAINER -->
+    <!-- MODE 4: FLASHCARD CONTAINER WITH LIVE SIDE TOGGLE -->
     <div id="flashcard-container">
+        <div class="flash-switcher">
+            <button id="flash-mode-sf" class="flash-sw-btn active" onclick="setFlashcardOrientation('symbol-front')">🧪 Formula Front</button>
+            <button id="flash-mode-nf" class="flash-sw-btn" onclick="setFlashcardOrientation('name-front')">📝 Name Front</button>
+        </div>
         <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 10px;" id="flash-progress">Card 1 / 18</div>
+        
         <div class="flashcard-wrapper" onclick="toggleFlashcardFlip(this)">
             <div class="flashcard-inner">
                 <div class="flashcard-front">
                     <div class="flashcard-title" id="flash-front-title">Formula / Symbol</div>
-                    <div class="flashcard-main" id="flash-front-text">H⁺</div>
+                    <div class="flashcard-main" id="flash-front-text">-</div>
                 </div>
                 <div class="flashcard-back">
-                    <div class="flashcard-title">English Chemical Name</div>
-                    <div class="flashcard-main" style="font-size: 2rem;" id="flash-back-text">Hydrogen ion</div>
+                    <div class="flashcard-title" id="flash-back-title">Chemical Name</div>
+                    <div class="flashcard-main" style="font-size: 2rem;" id="flash-back-text">-</div>
                 </div>
             </div>
         </div>
@@ -297,19 +345,16 @@
         </div>
     </div>
 
-    <!-- MODE 5: UPGRADED 6-ROW SCROLLABLE PUZZLE CONTAINER -->
+    <!-- MODE 5: SCROLLABLE PUZZLE CONTAINER -->
     <div id="ptable-container">
         <div style="font-size: 1.1rem; color: #3d5a80; font-weight: bold; margin-bottom: 10px;" id="pt-score">Elements Slotted: 0 / 30</div>
         
         <div class="table-scroll-wrapper">
-            <!-- Group Columns correctly labeled G1 to G7, and G0 for Noble Gases -->
             <div style="display: grid; grid-template-columns: repeat(18, 44px); gap: 5px; width: max-content; margin: 0 auto 5px auto; font-weight: bold; color: #2b7a78; font-size: 0.8rem; text-align: center;">
                 <div>G1</div><div>G2</div><div style="grid-column: span 10; color: #3d5a80; letter-spacing: 2px;">TRANSITION METALS</div><div>G3</div><div>G4</div><div>G5</div><div>G6</div><div>G7</div><div>G0</div>
             </div>
             
-            <!-- ⚡ THE MAIN CONTAINER HOUSING THE LIVE ELEMENT TILES -->
             <div class="ptable-grid" id="ptable-grid-element">
-                <!-- 👑 BRAND NEW: The Center Courtyard Box mapped precisely via CSS coordinates -->
                 <div class="pt-courtyard-info" id="pt-info-center">
                     <div class="info-title-large" id="pt-info-title">Group Properties</div>
                     <div class="info-body-large" id="pt-info-body">Place elements into the table to explore their family group characteristics!</div>
@@ -375,7 +420,6 @@
             { symbol: "Cr₂O₇²⁻", name: "Dichromate ion", level: 3 },
             { symbol: "SO₄²⁻", name: "Sulphate ion", level: 3 },
             { symbol: "SO₃²⁻", name: "Sulphite ion", level: 3 },
-            { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 },
             { symbol: "NH₄⁺", name: "Ammonium ion", level: 3 },
             { symbol: "NO₂⁻", name: "Nitrite ion", level: 3 },
             { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
@@ -423,17 +467,34 @@
         let activeQuizMode = 'quiz-nf';
         let flashDeck = [];
         let currentFlashIndex = 0;
+        let flashcardSideOrientation = 'symbol-front';
         let ptableDeck = [];
         let activePuzzleElement = null;
         let elementsSolvedCount = 0;
+
+        let gameScores = { 'match': 0, 'quiz-nf': 0, 'quiz-fn': 0, 'ptable': 0 };
+        let fullMarks = { 'match': 470, 'quiz-nf': 940, 'quiz-fn': 940, 'ptable': 450 };
+        let currentActiveTabKey = 'match';
+
+        function addGamePoints(amount) {
+            gameScores[currentActiveTabKey] += amount;
+            if (gameScores[currentActiveTabKey] < 0) gameScores[currentActiveTabKey] = 0;
+            document.getElementById('score-current').textContent = gameScores[currentActiveTabKey];
+        }
         function initApp() {
             buildMatchingGame();
             prepareQuizDeck();
             prepareFlashcards();
             resetPeriodicTablePuzzle();
-            // ⚡ THE BUG FIX: Force the periodic table to hide immediately on initial page boot
             document.getElementById('ptable-container').style.display = 'none';
+            
+            // 🚀 HANDS-FREE AUTOMATION: Updates the matching game full mark dynamically on boot!
+            // It filters the database to count only level 1, 2, or 3 cards and sets the text
+            const matchItemsCount = chemistryDatabase.filter(item => item.level >= 1 && item.level <= 3).length;
+            fullMarks['match'] = matchItemsCount * 10;
+            document.getElementById('score-full').textContent = fullMarks['match'];
         }
+
 
         function switchGameMode(mode) {
             const tabs = ['match', 'quiz-nf', 'quiz-fn', 'flash', 'ptable'];
@@ -451,6 +512,23 @@
             document.getElementById(`btn-mode-` + mode).classList.add('active');
             containers[mode].style.display = 'block';
 
+            currentActiveTabKey = mode;
+            const banner = document.getElementById('game-score-banner');
+            const label = document.getElementById('score-label');
+
+            if (gameScores[mode] !== undefined) {
+                banner.style.display = 'inline-flex';
+                document.getElementById('score-current').textContent = gameScores[mode];
+                document.getElementById('score-full').textContent = fullMarks[mode];
+                
+                if (mode === 'match') label.textContent = "🧩 Card Match Score:";
+                if (mode === 'quiz-nf') label.textContent = "📝 Name ➔ Formula Score:";
+                if (mode === 'quiz-fn') label.textContent = "🧪 Formula ➔ Name Score:";
+                if (mode === 'ptable') label.textContent = "📅 Table Puzzle Score:";
+            } else {
+                banner.style.display = 'none';
+            }
+
             if (mode === 'quiz-nf' || mode === 'quiz-fn') {
                 activeQuizMode = mode;
                 prepareQuizDeck();
@@ -463,8 +541,10 @@
             }
         }
 
-        /* 👑 FIXED MATCHING LOOPS: FULLY INTEGRATED IN ONE UNBROKEN CONTAINER */
+        let selectionMemory = [];
+
         function buildMatchingGame() {
+            selectionMemory = [];
             for (let lvl = 1; lvl <= 3; lvl++) {
                 const targetGrid = document.getElementById(`grid-level-${lvl}`);
                 if (!targetGrid) continue;
@@ -473,8 +553,8 @@
                 const levelItems = chemistryDatabase.filter(item => item.level === lvl);
                 let cardDeck = [];
                 levelItems.forEach((item) => {
-                    cardDeck.push({ type: 'symbol', text: item.symbol, matchKey: item.name });
-                    cardDeck.push({ type: 'name', text: item.name, matchKey: item.name });
+                    cardDeck.push({ text: item.symbol, matchKey: item.name });
+                    cardDeck.push({ text: item.name, matchKey: item.name });
                 });
 
                 cardDeck.sort(() => Math.random() - 0.5);
@@ -484,42 +564,36 @@
                     cardElement.className = 'card';
                     cardElement.textContent = cardData.text;
                     cardElement.setAttribute('data-matchkey', cardData.matchKey);
-                    cardElement.onclick = function() { handleCardInteraction(cardElement, lvl); };
+                    cardElement.onclick = function() { handleCardInteraction(cardElement); };
                     targetGrid.appendChild(cardElement);
                 });
             }
         }
 
-        function handleCardInteraction(element, level) {
-            if (element.classList.contains('matched')) return;
-            if (!currentSelections[level]) currentSelections[level] = [];
-            const activeLevelSelections = currentSelections[level];
+        function handleCardInteraction(element) {
+            if (element.classList.contains('matched') || selectionMemory.includes(element)) return;
+            if (selectionMemory.length >= 2) return;
 
-            if (activeLevelSelections.includes(element)) {
-                element.classList.remove(`selected-${level}`);
-                currentSelections[level] = activeLevelSelections.filter(el => el !== element);
-                return;
-            }
+            element.classList.add('selected-1'); 
+            selectionMemory.push(element);
 
-            if (activeLevelSelections.length >= 2) return;
-            element.classList.add(`selected-${level}`);
-            activeLevelSelections.push(element);
-
-            if (activeLevelSelections.length === 2) {
-                const card1 = activeLevelSelections[0];
-                const card2 = activeLevelSelections[1];
+            if (selectionMemory.length === 2) {
+                const card1 = selectionMemory[0];
+                const card2 = selectionMemory[1];
 
                 if (card1.getAttribute('data-matchkey') === card2.getAttribute('data-matchkey')) {
                     setTimeout(() => {
-                        card1.classList.add('matched');
-                        card2.classList.add('matched');
-                        currentSelections[level] = [];
+                        card1.className = 'card matched';
+                        card2.className = 'card matched';
+                        selectionMemory = [];
+                        addGamePoints(10);
                     }, 250);
                 } else {
                     setTimeout(() => {
-                        card1.classList.remove(`selected-${level}`);
-                        card2.classList.remove(`selected-${level}`);
-                        currentSelections[level] = [];
+                        card1.classList.remove('selected-1');
+                        card2.classList.remove('selected-1');
+                        selectionMemory = [];
+                        addGamePoints(-5);
                     }, 800);
                 }
             }
@@ -596,10 +670,13 @@
                     inputField.disabled = true;
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
+                    addGamePoints(20);
                 } else {
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Target code matches "${cleanCorrect.toUpperCase()}".</div>`;
                     inputField.focus();
                     inputField.select();
+                    // 🏆 HIGH PENALTY: Deducts -10 points for wrong formula answers
+                    addGamePoints(-10);
                 }
             } else {
                 if (userAnswer.toLowerCase() === currentQuestion.name.toLowerCase()) {
@@ -607,10 +684,13 @@
                     inputField.disabled = true;
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
+                    addGamePoints(20);
                 } else {
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Include 'ion' (e.g. "${currentQuestion.name}").</div>`;
                     inputField.focus();
                     inputField.select();
+                    // 🏆 HIGH PENALTY: Deducts -10 points for wrong name text answers
+                    addGamePoints(-10);
                 }
             }
         }
@@ -621,24 +701,46 @@
         function nextFlashcard() { if (currentFlashIndex < flashDeck.length - 1) { currentFlashIndex++; loadFlashcard(); } }
         function prevFlashcard() { if (currentFlashIndex > 0) { currentFlashIndex--; loadFlashcard(); } }
 
+        function setFlashcardOrientation(targetOrientation) {
+            flashcardSideOrientation = targetOrientation;
+            document.getElementById('flash-mode-sf').classList.remove('active');
+            document.getElementById('flash-mode-nf').classList.remove('active');
+            
+            if (targetOrientation === 'symbol-front') {
+                document.getElementById('flash-mode-sf').classList.add('active');
+            } else {
+                document.getElementById('flash-mode-nf').classList.add('active');
+            }
+            loadFlashcard();
+        }
+
         function loadFlashcard() {
             const currentCard = flashDeck[currentFlashIndex];
             const wrapper = document.querySelector('.flashcard-wrapper');
             wrapper.classList.remove('flipped');
             setTimeout(() => {
                 document.getElementById('flash-progress').textContent = `Card ${currentFlashIndex + 1} / ${flashDeck.length}`;
-                document.getElementById('flash-front-text').textContent = currentCard.symbol;
-                document.getElementById('flash-back-text').textContent = currentCard.name;
+                
+                if (flashcardSideOrientation === 'symbol-front') {
+                    document.getElementById('flash-front-title').textContent = "Formula / Symbol";
+                    document.getElementById('flash-front-text').textContent = currentCard.symbol;
+                    document.getElementById('flash-back-title').textContent = "English Chemical Name";
+                    document.getElementById('flash-back-text').textContent = currentCard.name;
+                } else {
+                    document.getElementById('flash-front-title').textContent = "English Chemical Name";
+                    document.getElementById('flash-front-text').textContent = currentCard.name;
+                    document.getElementById('flash-back-title').textContent = "Formula / Symbol";
+                    document.getElementById('flash-back-text').textContent = currentCard.symbol;
+                }
             }, 150);
         }
-        // --- 📅 UPGRADED PERIODIC TABLE PUZZLE ENGINE WITH CENTER COURTYARD DATA INJECTION ---
+        // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH HIGH-DEDUCTION PENALTIES ---
         function resetPeriodicTablePuzzle() {
             elementsSolvedCount = 0;
             document.getElementById('pt-score').textContent = `Elements Slotted: 0 / 30`;
             document.getElementById('puzzle-feedback-text').innerHTML = "";
             document.getElementById('puzzle-workbench').style.display = 'block';
             
-            // Reset Courtyard Infocard view to default layout
             document.getElementById('pt-info-title').textContent = "Group Properties";
             document.getElementById('pt-info-body').textContent = "Place elements into the table to explore their family group characteristics!";
             
@@ -652,7 +754,7 @@
             const grid = document.getElementById('ptable-grid-element');
             const courtyardCard = document.getElementById('pt-info-center');
             grid.innerHTML = "";
-            grid.appendChild(courtyardCard); // Preserve our central panel slot layout
+            grid.appendChild(courtyardCard);
 
             periodicTableData.forEach(cell => {
                 const slot = document.createElement('div');
@@ -670,7 +772,6 @@
                 document.getElementById('pt-score').textContent = "🏆 Table Puzzle Solved!";
                 document.getElementById('puzzle-workbench').style.display = 'none';
                 
-                // Show grand finish in courtyard card block
                 document.getElementById('pt-info-title').textContent = "Congratulations! 🎉";
                 document.getElementById('pt-info-body').textContent = "You've successfully mapped the entire expanded element matrix layout!";
                 return;
@@ -691,7 +792,6 @@
                     <div class="pt-name">${activePuzzleElement.name}</div>
                 `;
                 
-                // 👑 INJECT SYSTEM PROPERTIES DIRECTLY INTO THE NEW CENTRAL COURTYARD BOX
                 document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activePuzzleElement.group})`;
                 document.getElementById('pt-info-body').innerHTML = activePuzzleElement.char;
                 
@@ -700,14 +800,20 @@
                 ptableDeck.pop();
                 elementsSolvedCount++;
                 document.getElementById('pt-score').textContent = `Elements Slotted: ${elementsSolvedCount} / 30`;
+                
+                // 🏆 PUZZLE SCORES: Adds +15 points strictly to the Table Puzzle score bucket
+                addGamePoints(15);
+                
                 drawNextPuzzlePiece();
             } else {
                 slotElement.classList.add('error-flash');
                 feedback.innerHTML = `<span style="color: #ff6b6b;">✗ Wrong Spot! Try again.</span>`;
                 
-                // 💡 INJECT EDUCATIONAL HINT DIRECTLY INTO CENTRAL COURTYARD BOX ON ERROR
                 document.getElementById('pt-info-title').textContent = "Hint Needed?";
                 document.getElementById('pt-info-body').textContent = `${activePuzzleElement.name} belongs to the ${activePuzzleElement.group} block. Look closer at the structure layout.`;
+                
+                // 🏆 HIGH PENALTY: Deducts -5 points strictly from the Table Puzzle score bucket
+                addGamePoints(-5);
                 
                 setTimeout(() => { slotElement.classList.remove('error-flash'); }, 400);
             }
