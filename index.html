@@ -16,7 +16,6 @@
         h1 { color: #2b7a78; margin-bottom: 5px; font-size: 2rem; }
         .instructions { color: #666; margin-bottom: 15px; font-size: 0.95rem; }
         
-        /* 🏆 UPGRADED STICKY ANCHOR LIVE FRACTIONAL SCOREBOARD BADGE */
         .score-banner {
             background-color: #2b7a78;
             color: white;
@@ -28,12 +27,10 @@
             align-items: center;
             gap: 10px;
             box-shadow: 0 4px 12px rgba(43, 122, 120, 0.35);
-            
-            /* ⚡ THE STICKY OVERRIDE CORRECTION */
-            position: -webkit-sticky; /* Full Safari & iOS capability rendering */
+            position: -webkit-sticky;
             position: sticky;
-            top: 10px; /* Snaps exactly 10 pixels away from top device glass pane */
-            z-index: 1000; /* Forces banner layer to float securely directly over scrolling elements */
+            top: 10px;
+            z-index: 1000;
             margin: 5px auto 20px auto;
         }
         #score-label { text-transform: capitalize; }
@@ -256,7 +253,7 @@
     <h1>Chemistry Master Deck</h1>
     <p class="instructions">Choose your training system below to memorize symbols, formulas, and names!</p>
     
-    <!-- 🏆 FRACTIONAL LIVE SCORE BOARD DISPLAY BADGE (NOW WITH STICKY ANCHORING) -->
+    <!-- 🏆 FRACTIONAL LIVE SCORE BOARD DISPLAY BADGE -->
     <div class="score-banner" id="game-score-banner">
         <span id="score-label">🧩 Card Match Score:</span>
         <span id="score-display-box">
@@ -277,15 +274,15 @@
     <!-- MODE 1: MATCHING ENGINE DISPLAY -->
     <div id="matching-view">
         <div class="level-section">
-            <h2 class="title-1">Level 1</h2>
+            <h2 class="title-1">Level 1: Basic Elements & Monatomic Ions</h2>
             <div class="grid" id="grid-level-1"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-2">Level 2</h2>
+            <h2 class="title-2">Level 2: Common Polyatomic Ions</h2>
             <div class="grid" id="grid-level-2"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-3">Level 3</h2>
+            <h2 class="title-3">Level 3: Advanced Metals & Heavy Polyatomics</h2>
             <div class="grid" id="grid-level-3"></div>
         </div>
         <div class="reset-container">
@@ -376,53 +373,24 @@
     <script>
         // MASTER CENTRAL DATABASE ARRAY FOR GAMES 1, 2, AND 3
         const chemistryDatabase = [
-            { symbol: "H⁻", name: "Hydride ion", level: 1 },
             { symbol: "H⁺", name: "Hydrogen ion", level: 1 },
             { symbol: "Na⁺", name: "Sodium ion", level: 1 },
             { symbol: "K⁺", name: "Potassium ion", level: 1 },
             { symbol: "Cl⁻", name: "Chloride ion", level: 1 },
-            { symbol: "Ag⁺", name: "Silver ion", level: 1 },
             { symbol: "F⁻", name: "Fluoride ion", level: 1 },
             { symbol: "Li⁺", name: "Lithium ion", level: 1 },
-            { symbol: "N³⁻", name: "Nitride ion", level: 1 },
-            { symbol: "O²⁻", name: "Oxide ion", level: 1 },
-            { symbol: "Ca²⁺", name: "Calcium ion", level: 1 },
-            { symbol: "Fe²⁺", name: "Iron(II) ion", level: 1 },
-            { symbol: "Al³⁺", name: "Aluminium ion", level: 1 },
-            { symbol: "Fe³⁺", name: "Iron(III) ion", level: 1 },
-            { symbol: "Zn²⁺", name: "Zinc ion", level: 1 },
-            { symbol: "Mg²⁺", name: "Magnesium ion", level: 1 },
-            { symbol: "Ni²⁺", name: "Nickel(II) ion", level: 1 },
-            { symbol: "S²⁻", name: "Sulphide ion", level: 1 },
-            { symbol: "I⁻", name: "Iodide ion", level: 1 },
-            { symbol: "Br⁻", name: "Bromide ion", level: 2 },
-            { symbol: "P³⁻", name: "Phosphide ion", level: 2 },
-            { symbol: "Cu²⁺", name: "Copper(II) ion", level: 2 },
-            { symbol: "Cu⁺", name: "Copper(I) ion", level: 2 },
-            { symbol: "Hg⁺", name: "Mercury(I) ion", level: 2 },
-            { symbol: "Hg²⁺", name: "Mercury(II) ion", level: 2 },
-            { symbol: "Ba²⁺", name: "Barium ion", level: 2 },
-            { symbol: "Cr³⁺", name: "Chromium(III) ion", level: 2 },
-            { symbol: "Pb²⁺", name: "Lead(II) ion", level: 2 },
-            { symbol: "Co²⁺", name: "Cobalt(II) ion", level: 2 },
+            { symbol: "NO₃⁻", name: "Nitrate ion", level: 2 },
+            { symbol: "SO₄²⁻", name: "Sulfate ion", level: 2 },
+            { symbol: "SO₃²⁻", name: "Sulfite ion", level: 2 },
+            { symbol: "NH₄⁺", name: "Ammonium ion", level: 2 },
             { symbol: "CO₃²⁻", name: "Carbonate ion", level: 2 },
-            { symbol: "OH⁻", name: "Hydroxide ion", level: 2 },
-            { symbol: "CN⁻", name: "Cyanide ion", level: 2 },
-            { symbol: "ClO₃⁻", name: "Chlorate ion", level: 2 },
-            { symbol: "ClO⁻", name: "Hypochlorite ion", level: 2 },
-            { symbol: "PO₄³⁻", name: "Phosphate ion", level: 2 },
-            { symbol: "MnO₄⁻", name: "Permanganate ion", level: 2 },
-            { symbol: "CrO₄²⁻", name: "Chromate ion", level: 3 },
-            { symbol: "HCO₃⁻", name: "Hydrogencarbonate ion", level: 3 },
-            { symbol: "HSO₄⁻", name: "Hydrogensulfate ion", level: 3 },
-            { symbol: "S₂O₃²⁻", name: "Thiosulphate ion", level: 3 },
-            { symbol: "SiO₃²⁻", name: "Silicate ion", level: 3 },
-            { symbol: "Cr₂O₇²⁻", name: "Dichromate ion", level: 3 },
-            { symbol: "SO₄²⁻", name: "Sulphate ion", level: 3 },
-            { symbol: "SO₃²⁻", name: "Sulphite ion", level: 3 },
-            { symbol: "NH₄⁺", name: "Ammonium ion", level: 3 },
-            { symbol: "NO₂⁻", name: "Nitrite ion", level: 3 },
-            { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
+            { symbol: "NO₂⁻", name: "Nitrite ion", level: 2 },
+            { symbol: "PO₄³⁻", name: "Phosphate ion", level: 3 },
+            { symbol: "Cu²⁺", name: "Copper(II) ion", level: 3 },
+            { symbol: "Al³⁺", name: "Aluminum ion", level: 3 },
+            { symbol: "MnO₄⁻", name: "Permanganate ion", level: 3 },
+            { symbol: "Zn²⁺", name: "Zinc ion", level: 3 },
+            { symbol: "Pb²⁺", name: "Lead(II) ion", level: 3 }
         ];
 
         // CONFIGURATION DATA FILE FOR THE PERIODIC TABLE PUZZLE (NOW WITH SCIENTIFIC GROUPS & CURRICULUM CHARACTERISTICS)
@@ -473,8 +441,11 @@
         let elementsSolvedCount = 0;
 
         let gameScores = { 'match': 0, 'quiz-nf': 0, 'quiz-fn': 0, 'ptable': 0 };
-        let fullMarks = { 'match': 470, 'quiz-nf': 940, 'quiz-fn': 940, 'ptable': 450 };
+        let fullMarks = { 'match': 480, 'quiz-nf': 960, 'quiz-fn': 960, 'ptable': 450 };
         let currentActiveTabKey = 'match';
+
+        // ⚡ NEW: Tracking Boolean to ensure she only scores on her first attempt!
+        let quizFirstTry = true;
 
         function addGamePoints(amount) {
             gameScores[currentActiveTabKey] += amount;
@@ -487,14 +458,7 @@
             prepareFlashcards();
             resetPeriodicTablePuzzle();
             document.getElementById('ptable-container').style.display = 'none';
-            
-            // 🚀 HANDS-FREE AUTOMATION: Updates the matching game full mark dynamically on boot!
-            // It filters the database to count only level 1, 2, or 3 cards and sets the text
-            const matchItemsCount = chemistryDatabase.filter(item => item.level >= 1 && item.level <= 3).length;
-            fullMarks['match'] = matchItemsCount * 10;
-            document.getElementById('score-full').textContent = fullMarks['match'];
         }
-
 
         function switchGameMode(mode) {
             const tabs = ['match', 'quiz-nf', 'quiz-fn', 'flash', 'ptable'];
@@ -593,7 +557,7 @@
                         card1.classList.remove('selected-1');
                         card2.classList.remove('selected-1');
                         selectionMemory = [];
-                        addGamePoints(-5);
+                        addGamePoints(-5); // Keep card deduction for high-stakes card flipping focus
                     }, 800);
                 }
             }
@@ -603,6 +567,13 @@
             quizDeck = [...chemistryDatabase];
             quizDeck.sort(() => Math.random() - 0.5);
             currentQuizIndex = 0;
+            
+            // Auto update full marks safely on generation cycles
+            fullMarks['quiz-nf'] = chemistryDatabase.length * 20;
+            fullMarks['quiz-fn'] = chemistryDatabase.length * 20;
+            if (currentActiveTabKey.startsWith('quiz')) {
+                document.getElementById('score-full').textContent = fullMarks[currentActiveTabKey];
+            }
         }
         function loadQuizQuestion() {
             if (currentQuizIndex >= quizDeck.length) {
@@ -614,6 +585,9 @@
                 document.getElementById('btn-next-question').style.display = 'none';
                 return;
             }
+
+            // 👑 SMART UPDATE: Reset first try flag for the brand new question!
+            quizFirstTry = true;
 
             const currentQuestion = quizDeck[currentQuizIndex];
             document.getElementById('quiz-progress').textContent = `Question ${currentQuizIndex + 1} / ${quizDeck.length}`;
@@ -670,13 +644,18 @@
                     inputField.disabled = true;
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
-                    addGamePoints(20);
+                    
+                    // 👑 SMART UPDATE: Only award +20 points if this is their very first attempt!
+                    if (quizFirstTry) {
+                        addGamePoints(20);
+                    }
                 } else {
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Target code matches "${cleanCorrect.toUpperCase()}".</div>`;
                     inputField.focus();
                     inputField.select();
-                    // 🏆 HIGH PENALTY: Deducts -10 points for wrong formula answers
-                    addGamePoints(-10);
+                    
+                    // 👑 SMART UPDATE: No points deducted, but flag is set to false!
+                    quizFirstTry = false;
                 }
             } else {
                 if (userAnswer.toLowerCase() === currentQuestion.name.toLowerCase()) {
@@ -684,13 +663,18 @@
                     inputField.disabled = true;
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
-                    addGamePoints(20);
+                    
+                    // 👑 SMART UPDATE: Only award +20 points if this is their very first attempt!
+                    if (quizFirstTry) {
+                        addGamePoints(20);
+                    }
                 } else {
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Include 'ion' (e.g. "${currentQuestion.name}").</div>`;
                     inputField.focus();
                     inputField.select();
-                    // 🏆 HIGH PENALTY: Deducts -10 points for wrong name text answers
-                    addGamePoints(-10);
+                    
+                    // 👑 SMART UPDATE: No points deducted, but flag is set to false!
+                    quizFirstTry = false;
                 }
             }
         }
@@ -734,7 +718,7 @@
                 }
             }, 150);
         }
-        // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH HIGH-DEDUCTION PENALTIES ---
+        // --- 📅 PERIODIC TABLE PUZZLE ENGINE ---
         function resetPeriodicTablePuzzle() {
             elementsSolvedCount = 0;
             document.getElementById('pt-score').textContent = `Elements Slotted: 0 / 30`;
@@ -792,6 +776,7 @@
                     <div class="pt-name">${activePuzzleElement.name}</div>
                 `;
                 
+                document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activeActivePuzzleElement ? activePuzzleElement.group : ''})`;
                 document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activePuzzleElement.group})`;
                 document.getElementById('pt-info-body').innerHTML = activePuzzleElement.char;
                 
@@ -801,7 +786,7 @@
                 elementsSolvedCount++;
                 document.getElementById('pt-score').textContent = `Elements Slotted: ${elementsSolvedCount} / 30`;
                 
-                // 🏆 PUZZLE SCORES: Adds +15 points strictly to the Table Puzzle score bucket
+                // Adds +15 points strictly to the Table Puzzle score bucket
                 addGamePoints(15);
                 
                 drawNextPuzzlePiece();
@@ -812,7 +797,7 @@
                 document.getElementById('pt-info-title').textContent = "Hint Needed?";
                 document.getElementById('pt-info-body').textContent = `${activePuzzleElement.name} belongs to the ${activePuzzleElement.group} block. Look closer at the structure layout.`;
                 
-                // 🏆 HIGH PENALTY: Deducts -5 points strictly from the Table Puzzle score bucket
+                // Deducts -5 points strictly from the Table Puzzle score bucket
                 addGamePoints(-5);
                 
                 setTimeout(() => { slotElement.classList.remove('error-flash'); }, 400);
