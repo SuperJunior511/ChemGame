@@ -274,15 +274,15 @@
     <!-- MODE 1: MATCHING ENGINE DISPLAY -->
     <div id="matching-view">
         <div class="level-section">
-            <h2 class="title-1">Level 1: Basic Elements & Monatomic Ions</h2>
+            <h2 class="title-1">Level 1</h2>
             <div class="grid" id="grid-level-1"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-2">Level 2: Common Polyatomic Ions</h2>
+            <h2 class="title-2">Level 2</h2>
             <div class="grid" id="grid-level-2"></div>
         </div>
         <div class="level-section">
-            <h2 class="title-3">Level 3: Advanced Metals & Heavy Polyatomics</h2>
+            <h2 class="title-3">Level 3</h2>
             <div class="grid" id="grid-level-3"></div>
         </div>
         <div class="reset-container">
@@ -373,24 +373,53 @@
     <script>
         // MASTER CENTRAL DATABASE ARRAY FOR GAMES 1, 2, AND 3
         const chemistryDatabase = [
+            { symbol: "H⁻", name: "Hydride ion", level: 1 },
             { symbol: "H⁺", name: "Hydrogen ion", level: 1 },
             { symbol: "Na⁺", name: "Sodium ion", level: 1 },
             { symbol: "K⁺", name: "Potassium ion", level: 1 },
             { symbol: "Cl⁻", name: "Chloride ion", level: 1 },
+            { symbol: "Ag⁺", name: "Silver ion", level: 1 },
             { symbol: "F⁻", name: "Fluoride ion", level: 1 },
             { symbol: "Li⁺", name: "Lithium ion", level: 1 },
-            { symbol: "NO₃⁻", name: "Nitrate ion", level: 2 },
-            { symbol: "SO₄²⁻", name: "Sulfate ion", level: 2 },
-            { symbol: "SO₃²⁻", name: "Sulfite ion", level: 2 },
-            { symbol: "NH₄⁺", name: "Ammonium ion", level: 2 },
+            { symbol: "N³⁻", name: "Nitride ion", level: 1 },
+            { symbol: "O²⁻", name: "Oxide ion", level: 1 },
+            { symbol: "Ca²⁺", name: "Calcium ion", level: 1 },
+            { symbol: "Fe²⁺", name: "Iron(II) ion", level: 1 },
+            { symbol: "Al³⁺", name: "Aluminium ion", level: 1 },
+            { symbol: "Fe³⁺", name: "Iron(III) ion", level: 1 },
+            { symbol: "Zn²⁺", name: "Zinc ion", level: 1 },
+            { symbol: "Mg²⁺", name: "Magnesium ion", level: 1 },
+            { symbol: "Ni²⁺", name: "Nickel(II) ion", level: 1 },
+            { symbol: "S²⁻", name: "Sulphide ion", level: 1 },
+            { symbol: "I⁻", name: "Iodide ion", level: 1 },
+            { symbol: "Br⁻", name: "Bromide ion", level: 2 },
+            { symbol: "P³⁻", name: "Phosphide ion", level: 2 },
+            { symbol: "Cu²⁺", name: "Copper(II) ion", level: 2 },
+            { symbol: "Cu⁺", name: "Copper(I) ion", level: 2 },
+            { symbol: "Hg⁺", name: "Mercury(I) ion", level: 2 },
+            { symbol: "Hg²⁺", name: "Mercury(II) ion", level: 2 },
+            { symbol: "Ba²⁺", name: "Barium ion", level: 2 },
+            { symbol: "Cr³⁺", name: "Chromium(III) ion", level: 2 },
+            { symbol: "Pb²⁺", name: "Lead(II) ion", level: 2 },
+            { symbol: "Co²⁺", name: "Cobalt(II) ion", level: 2 },
             { symbol: "CO₃²⁻", name: "Carbonate ion", level: 2 },
-            { symbol: "NO₂⁻", name: "Nitrite ion", level: 2 },
-            { symbol: "PO₄³⁻", name: "Phosphate ion", level: 3 },
-            { symbol: "Cu²⁺", name: "Copper(II) ion", level: 3 },
-            { symbol: "Al³⁺", name: "Aluminum ion", level: 3 },
-            { symbol: "MnO₄⁻", name: "Permanganate ion", level: 3 },
-            { symbol: "Zn²⁺", name: "Zinc ion", level: 3 },
-            { symbol: "Pb²⁺", name: "Lead(II) ion", level: 3 }
+            { symbol: "OH⁻", name: "Hydroxide ion", level: 2 },
+            { symbol: "CN⁻", name: "Cyanide ion", level: 2 },
+            { symbol: "ClO₃⁻", name: "Chlorate ion", level: 2 },
+            { symbol: "ClO⁻", name: "Hypochlorite ion", level: 2 },
+            { symbol: "PO₄³⁻", name: "Phosphate ion", level: 2 },
+            { symbol: "MnO₄⁻", name: "Permanganate ion", level: 2 },
+            { symbol: "CrO₄²⁻", name: "Chromate ion", level: 3 },
+            { symbol: "HCO₃⁻", name: "Hydrogencarbonate ion", level: 3 },
+            { symbol: "HSO₄⁻", name: "Hydrogensulphate ion", level: 3 },
+            { symbol: "S₂O₃²⁻", name: "Thiosulphate ion", level: 3 },
+            { symbol: "SiO₃²⁻", name: "Silicate ion", level: 3 },
+            { symbol: "Cr₂O₇²⁻", name: "Dichromate ion", level: 3 },
+            { symbol: "SO₄²⁻", name: "Sulphate ion", level: 3 },
+            { symbol: "SO₃²⁻", name: "Sulphite ion", level: 3 },
+            { symbol: "NH₄⁺", name: "Ammonium ion", level: 3 },
+            { symbol: "NO₂⁻", name: "Nitrite ion", level: 3 },
+            { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
         ];
 
         // CONFIGURATION DATA FILE FOR THE PERIODIC TABLE PUZZLE (NOW WITH SCIENTIFIC GROUPS & CURRICULUM CHARACTERISTICS)
@@ -441,7 +470,7 @@
         let elementsSolvedCount = 0;
 
         let gameScores = { 'match': 0, 'quiz-nf': 0, 'quiz-fn': 0, 'ptable': 0 };
-        let fullMarks = { 'match': 480, 'quiz-nf': 960, 'quiz-fn': 960, 'ptable': 450 };
+        let fullMarks = { 'match': 470, 'quiz-nf': 940, 'quiz-fn': 940, 'ptable': 450 };
         let currentActiveTabKey = 'match';
 
         // ⚡ NEW: Tracking Boolean to ensure she only scores on her first attempt!
