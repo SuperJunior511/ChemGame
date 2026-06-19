@@ -307,6 +307,7 @@
             <button class="key-btn" onclick="insertChemSymbol('₂')">₂</button>
             <button class="key-btn" onclick="insertChemSymbol('₃')">₃</button>
             <button class="key-btn" onclick="insertChemSymbol('₄')">₄</button>
+            <button class="key-btn" onclick="insertChemSymbol('₇')">₇</button>
         </div>
 
         <div id="quiz-feedback"></div>
@@ -534,10 +535,16 @@
             }
         }
 
+        // 👑 完整不截斷：Game 1 卡片生成與記憶體消除配對模組（確保 100% 順暢消失）
         let selectionMemory = [];
 
         function buildMatchingGame() {
-            selectionMemory = [];
+            selectionMemory = []; // 清空上一次的點擊殘留
+            gameScores['match'] = 0; // 重設分數歸零
+            if (currentActiveTabKey === 'match') {
+                document.getElementById('score-current').textContent = 0;
+            }
+
             for (let lvl = 1; lvl <= 3; lvl++) {
                 const targetGrid = document.getElementById(`grid-level-${lvl}`);
                 if (!targetGrid) continue;
@@ -578,32 +585,38 @@
                     setTimeout(() => {
                         card1.className = 'card matched';
                         card2.className = 'card matched';
-                        selectionMemory = [];
+                        selectionMemory = []; // ⚡ 核心修復：立即清空暫存，100% 觸發卡片消失動畫
                         addGamePoints(10);
                     }, 250);
                 } else {
                     setTimeout(() => {
                         card1.classList.remove('selected-1');
                         card2.classList.remove('selected-1');
-                        selectionMemory = [];
-                        addGamePoints(-5); // Keep card deduction for high-stakes card flipping focus
+                        selectionMemory = []; // ⚡ 核心修復：錯字清空，防死鎖
+                        addGamePoints(-5);
                     }, 800);
                 }
             }
         }
-
+        // 👑 升級重設功能：當重新載入問答時，自動將該特定問答模式的分數歸零
         function prepareQuizDeck() {
             quizDeck = [...chemistryDatabase];
             quizDeck.sort(() => Math.random() - 0.5);
             currentQuizIndex = 0;
             
-            // Auto update full marks safely on generation cycles
+            // ⚡ 核心修復：重設當前活躍問答模式的分數為 0
+            if (gameScores[currentActiveTabKey] !== undefined) {
+                gameScores[currentActiveTabKey] = 0;
+                document.getElementById('score-current').textContent = 0;
+            }
+            
             fullMarks['quiz-nf'] = chemistryDatabase.length * 20;
             fullMarks['quiz-fn'] = chemistryDatabase.length * 20;
             if (currentActiveTabKey.startsWith('quiz')) {
                 document.getElementById('score-full').textContent = fullMarks[currentActiveTabKey];
             }
         }
+
         function loadQuizQuestion() {
             if (currentQuizIndex >= quizDeck.length) {
                 document.getElementById('quiz-progress').textContent = "Trilogy Completed! 🎉";
@@ -615,7 +628,6 @@
                 return;
             }
 
-            // 👑 SMART UPDATE: Reset first try flag for the brand new question!
             quizFirstTry = true;
 
             const currentQuestion = quizDeck[currentQuizIndex];
@@ -674,7 +686,6 @@
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
                     
-                    // 👑 SMART UPDATE: Only award +20 points if this is their very first attempt!
                     if (quizFirstTry) {
                         addGamePoints(20);
                     }
@@ -682,8 +693,6 @@
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Target code matches "${cleanCorrect.toUpperCase()}".</div>`;
                     inputField.focus();
                     inputField.select();
-                    
-                    // 👑 SMART UPDATE: No points deducted, but flag is set to false!
                     quizFirstTry = false;
                 }
             } else {
@@ -693,7 +702,6 @@
                     document.getElementById('btn-next-question').style.display = 'inline-block';
                     document.getElementById('btn-next-question').focus();
                     
-                    // 👑 SMART UPDATE: Only award +20 points if this is their very first attempt!
                     if (quizFirstTry) {
                         addGamePoints(20);
                     }
@@ -701,8 +709,6 @@
                     feedbackContainer.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: Include 'ion' (e.g. "${currentQuestion.name}").</div>`;
                     inputField.focus();
                     inputField.select();
-                    
-                    // 👑 SMART UPDATE: No points deducted, but flag is set to false!
                     quizFirstTry = false;
                 }
             }
@@ -747,13 +753,19 @@
                 }
             }, 150);
         }
-        // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH FIXES ---
+        // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH SCORE RESET CORRECTIONS ---
         function resetPeriodicTablePuzzle() {
             elementsSolvedCount = 0;
             document.getElementById('pt-score').textContent = `Elements Slotted: 0 / 30`;
             document.getElementById('puzzle-feedback-text').innerHTML = "";
             document.getElementById('puzzle-workbench').style.display = 'block';
             
+            // ⚡ 核心修復：重設週期表謎題分數為 0 並且刷新置頂分數看板
+            gameScores['ptable'] = 0;
+            if (currentActiveTabKey === 'ptable') {
+                document.getElementById('score-current').textContent = 0;
+            }
+
             document.getElementById('pt-info-title').textContent = "Group Properties";
             document.getElementById('pt-info-body').textContent = "Place elements into the table to explore their family group characteristics!";
             
@@ -797,14 +809,13 @@
             const feedback = document.getElementById('puzzle-feedback-text');
 
             if (cellConfig.num === activePuzzleElement.num) {
-                slotElement.className = `pt-element ${activePuzzleElement.type}`;
+                slotElement.className = `pt-element ${cellConfig.type}`;
                 slotElement.innerHTML = `
                     <div class="pt-num">${activePuzzleElement.num}</div>
                     <div class="pt-sym">${activePuzzleElement.sym}</div>
                     <div class="pt-name">${activePuzzleElement.name}</div>
                 `;
                 
-                // 👑 完美修復：使用乾淨無誤的變數，將家族屬性與特徵100%注入中央大字卡中
                 document.getElementById('pt-info-title').textContent = `${activePuzzleElement.name} (${activePuzzleElement.group})`;
                 document.getElementById('pt-info-body').innerHTML = activePuzzleElement.char;
                 
@@ -814,21 +825,16 @@
                 elementsSolvedCount++;
                 document.getElementById('pt-score').textContent = `Elements Slotted: ${elementsSolvedCount} / 30`;
                 
-                // 🏆 完美修復：點擊成功時，將 15 分順暢加入週期表專屬計分板中，絕不再卡死
                 addGamePoints(15);
-                
                 drawNextPuzzlePiece();
             } else {
                 slotElement.classList.add('error-flash');
                 feedback.innerHTML = `<span style="color: #ff6b6b;">✗ Wrong Spot! Try again.</span>`;
                 
-                // 💡 答錯時，同樣安全地將教學提示注入中央大字卡
                 document.getElementById('pt-info-title').textContent = "Hint Needed?";
                 document.getElementById('pt-info-body').textContent = `${activePuzzleElement.name} belongs to the ${activePuzzleElement.group} block. Look closer at the structure layout.`;
                 
-                // 🏆 週期表答錯懲罰：扣 5 分
                 addGamePoints(-5);
-                
                 setTimeout(() => { slotElement.classList.remove('error-flash'); }, 400);
             }
         }
