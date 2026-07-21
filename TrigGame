@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSE Trigonometry Quest with Visuals</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        :root { --primary: #2c3e50; --accent: #e74c3c; --success: #2ecc71; --gold: #f1c40f; --bg: #1a252f; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #ecf0f1; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .game-container { background: linear-gradient(145deg, #2c3e50, #34495e); border: 4px solid var(--gold); border-radius: 15px; padding: 30px; width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { font-family: 'Cinzel', serif; text-align: center; color: var(--gold); margin-top: 0; font-size: 26px; }
+        .stats-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+        .hp-bar-container { width: 100px; height: 15px; background: #7f8c8d; border-radius: 10px; overflow: hidden; display: inline-block; vertical-align: middle; }
+        .hp-bar-fill { width: 100%; height: 100%; background: var(--accent); transition: width 0.3s; }
+        .progress-container { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--success); transition: width 0.4s; }
+        .quest-box { background: rgba(0, 0, 0, 0.2); border-left: 5px solid var(--gold); padding: 20px; border-radius: 5px; margin-bottom: 25px; }
+        .topic-tag { display: inline-block; background: var(--gold); color: #000; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        .question-text { font-size: 17px; line-height: 1.6; margin: 0 0 15px 0; font-weight: 600; }
+        
+        /* New Canvas Diagram Area Styling */
+        .diagram-container { text-align: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; border: 1px dashed rgba(255,255,255,0.2); }
+        canvas { background-color: transparent; max-width: 100%; height: auto; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .option-btn { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); color: #fff; padding: 15px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; text-align: left; transition: all 0.2s; }
+        .option-btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); border-color: var(--gold); transform: translateX(5px); }
+        .option-btn:disabled { cursor: not-allowed; }
+        .feedback-box { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+        .feedback-success { background: rgba(46, 204, 113, 0.2); border: 2px solid var(--success); }
+        .feedback-fail { background: rgba(231, 76, 60, 0.2); border: 2px solid var(--accent); }
+        .next-btn { display: block; width: 100%; background: var(--gold); color: #000; border: none; padding: 12px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+        .result-screen { text-align: center; padding: 40px 20px; display: none; }
+        .result-icon { font-size: 60px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div id="game-ui">
+        <h1><i class="fa-solid fa-wand-magic-sparkles"></i> DSE Trig Visual Quest</h1>
+        <div class="stats-bar">
+            <div><i class="fa-solid fa-heart" style="color:var(--accent)"></i> HP: <div class="hp-bar-container"><div id="hp-fill" class="hp-bar-fill"></div></div></div>
+            <div><i class="fa-solid fa-coins" style="color:var(--gold)"></i> Coins: <span id="coin-count">0</span></div>
+            <div>Stage: <span id="stage-count">1/9</span></div>
+        </div>
+        <div class="progress-container"><div id="game-progress" class="progress-bar"></div></div>
+        <div class="quest-box">
+            <div id="topic-tag" class="topic-tag">Loading...</div>
+            <p id="question-text" class="question-text">Generating visual map...</p>
+            
+            <!-- Canvas container for geometry drawing -->
+            <div id="diagram-area" class="diagram-container">
+                <canvas id="trigCanvas" width="300" height="180"></canvas>
+            </div>
+        </div>
+        <div id="options-container" class="options-grid"></div>
+        <div id="feedback" class="feedback-box">
+            <p id="feedback-text" style="margin:0 0 10px 0; font-weight:600;"></p>
+            <p id="hint-text" style="margin:0; font-size:14px; opacity:0.9; font-style:italic;"></p>
+            <button class="next-btn" onclick="nextStage()">Advance Stage <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+    <div id="win-screen" class="result-screen">
+        <i class="fa-solid fa-trophy result-icon" style="color:var(--gold)"></i>
+        <h2>Ultimate Victory!</h2>
+        <p>You mastered DSE Geometry & Trigonometry formulas with expert visual skills!</p>
+        <p style="font-size:20px; color:var(--gold); font-weight:bold;">Coins: <span id="final-coins">0</span></p>
+        <button class="next-btn" onclick="resetGame()">Play Again (Reshuffled)</button>
+    </div>
+    <div id="lose-screen" class="result-screen">
+        <i class="fa-solid fa-heart-crack result-icon" style="color:var(--accent)"></i>
+        <h2>Defeat!</h2>
+        <p>Your HP reached zero. Review the geometric diagrams and try again!</p>
+        <button class="next-btn" onclick="resetGame()">Try Again</button>
+    </div>
+</div>
+<script>
+    // Master Database with specific diagram types assigned
+    const pool = [
+        { t: "Pythagorean Identity", q: "For any acute angle &theta; in a right-angled triangle, what does sin&sup2&theta; + cos&sup2&theta; equal to?", o: [{text:"1",c:true,f:"Perfect!"},{text:"0",c:false,f:"No, radius is 1."},{text:"tan&theta;",c:false,f:"Incorrect."},{text:"-1",c:false,f:"Wrong."}], h: "Derived from the Pythagorean theorem on a unit circle.", diagram: "right_triangle" },
+        { t: "Quotient Relation", q: "Look at the right-angled triangle. How do we express tan&theta; in terms of sin&theta; and cos&theta;?", o: [{text:"sin&theta; / cos&theta;",c:true,f:"Correct!"},{text:"cos&theta; / sin&theta;",c:false,f:"That is cot&theta;."},{text:"sin&theta; &times; cos&theta;",c:false,f:"Wrong."},{text:"1 / cos&theta;",c:false,f:"That is sec&theta;."}], h: "Tangent is Opposite/Adjacent = Sine/Cosine.", diagram: "right_triangle" },
+        { t: "CAST Rule", q: "If angle &theta; lies in Quadrant II (90&deg; < &theta; < 180&deg;) as shown in the diagram, which ratio is POSITIVE?", o: [{text:"sin&theta;",c:true,f:"Spot on!"},{text:"cos&theta;",c:false,f:"Negative here."},{text:"tan&theta;",c:false,f:"Negative here."},{text:"None",c:false,f:"Incorrect."}], h: "Remember CAST rule: Q2 is for Sine.", diagram: "quadrant" },
+        { t: "Transformation (90&deg; - &theta;)", q: "What is the simplified form of cos(90&deg; - &theta;)?", o: [{text:"sin&theta;",c:true,f:"Great job!"},{text:"-cos&theta;",c:false,f:"Wrong."},{text:"-sin&theta;",c:false,f:"Wrong sign."},{text:"cos&theta;",c:false,f:"No ratio change?"}], h: "90&deg; switches cos to sin. Q1 is positive.", diagram: "right_triangle" },
+        { t: "Transformation (180&deg; - &theta;)", q: "Simplify this expression based on the standard quadrant rotation: sin(180&deg; - &theta;)", o: [{text:"sin&theta;",c:true,f:"Correct!"},{text:"-sin&theta;",c:false,f:"Sine is positive in Q2."},{text:"cos&theta;",c:false,f:"180&deg; keeps same ratio."},{text:"-cos&theta;",c:false,f:"Wrong."}], h: "180&deg; keeps ratio name. Q2 sine is positive.", diagram: "quadrant" },
+        { t: "Pythagorean Variant", q: "Divide sin&sup2&theta; + cos&sup2&theta; = 1 by cos&sup2&theta;. Which identity corresponds to this right-angled configuration?", o: [{text:"1 + tan&sup2&theta; = 1/cos&sup2&theta;",c:true,f:"Amazing!"},{text:"1 + tan&sup2&theta; = 1/sin&sup2&theta;",c:false,f:"Wrong division."},{text:"1 + cos&sup2&theta; = tan&sup2&theta;",c:false,f:"Wrong."},{text:"tan&sup2&theta; - 1 = 1",c:false,f:"Wrong."}], h: "Divide each term step-by-step by cos&sup2&theta;.", diagram: "right_triangle" },
+        { t: "Sine Formula", q: "In the non-right angled triangle &Delta;ABC below, what is the correct Sine Formula?", o: [{text:"a/sin A = b/sin B = c/sin C",c:true,f:"Excellent!"},{text:"a/cos A = b/cos B",c:false,f:"Uses sine."},{text:"a&times;sin A = b&times;sin B",c:false,f:"Ratio, not product."},{text:"a&sup2;=b&sup2;+c&sup2;",c:false,f:"That's Pythagoras."}], h: "Side length matches its opposite angle underneath.", diagram: "oblique_triangle" },
+        { t: "Cosine Formula", q: "To calculate side 'a' in this non-right angled triangle &Delta;ABC, which formula is correct?", o: [{text:"a&sup2; = b&sup2; + c&sup2; - 2bc cos A",c:true,f:"Brilliant!"},{text:"a&sup2; = b&sup2; + c&sup2; + 2bc cos A",c:false,f:"Must subtract 2bc."},{text:"a&sup2; = b&sup2; - c&sup2; - 2bc sin A",c:false,f:"Wrong."},{text:"a = b + c - cos A",c:false,f:"Must be squared."}], h: "Pythagoras extended: subtract twice product times cos(A).", diagram: "oblique_triangle" },
+        { t: "Area of a Triangle", q: "What is the general trigonometry formula to find the Area of this triangle &Delta;ABC?", o: [{text:"(1/2) ab sin C",c:true,f:"Magnificent!"},{text:"(1/2) ab cos C",c:false,f:"Uses Sine."},{text:"ab sin C",c:false,f:"Forgot the 1/2."},{text:"(1/2) ab tan C",c:false,f:"Wrong ratio."}], h: "Area = 0.5 &times; product of 2 sides &times; sin(included angle).", diagram: "oblique_triangle" }
+    ];
+    let questions = [], currentIdx = 0, hp = 100, coins = 0;
+    const qText = document.getElementById("question-text"), tag = document.getElementById("topic-tag"), optCont = document.getElementById("options-container"), fb = document.getElementById("feedback"), fbText = document.getElementById("feedback-text"), hText = document.getElementById("hint-text"), hpFill = document.getElementById("hp-fill"), cCount = document.getElementById("coin-count"), sCount = document.getElementById("stage-count"), pBar = document.getElementById("game-progress");
+    const diagramArea = document.getElementById("diagram-area"), canvas = document.getElementById("trigCanvas"), ctx = canvas.getContext("2d");
+
+    // Dynamic Geometry Canvas Drawing Engine
+    function drawDiagram(type) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 3; ctx.strokeStyle = "#ffffff"; ctx.fillStyle = "#ffffff"; ctx.font = "bold 14px Poppins";
+
+        if (type === "right_triangle") {
+            diagramArea.style.display = "block";
+            ctx.beginPath(); ctx.moveTo(60, 30); ctx.lineTo(60, 140); ctx.lineTo(240, 140); ctx.closePath(); ctx.stroke();
+            // Right angle symbol
+            ctx.beginPath(); ctx.moveTo(60, 125); ctx.lineTo(75, 125); ctx.lineTo(75, 140); ctx.strokeStyle = "#f1c40f"; ctx.stroke();
+            // Text labels
+            ctx.strokeStyle = "#ffffff"; ctx.fillText("A", 55, 23); ctx.fillText("C (90°)", 30, 155); ctx.fillText("B", 245, 150);
+            // Theta arc
+            ctx.beginPath(); ctx.arc(240, 140, 25, Math.PI, Math.PI * 1.23); ctx.strokeStyle = "#2ecc71"; ctx.stroke();
+            ctx.fillStyle = "#2ecc71"; ctx.fillText("θ", 205, 133);
+        } 
+        else if (type === "oblique_triangle") {
+            diagramArea.style.display = "block";
+            ctx.beginPath(); ctx.moveTo(150, 30); ctx.lineTo(50, 140); ctx.lineTo(250, 140); ctx.closePath(); ctx.stroke();
+            ctx.fillText("A", 145, 22); ctx.fillText("B", 35, 150); ctx.fillText("C", 255, 150);
+            ctx.fillStyle = "#f1c40f"; ctx.fillText("c", 90, 90); ctx.fillText("b", 205, 90); ctx.fillText("a", 145, 160);
+        } 
+        else if (type === "quadrant") {
+            diagramArea.style.display = "block"; ctx.lineWidth = 1.5;
+            // X & Y Axes
+            ctx.beginPath(); ctx.moveTo(30, 90); ctx.lineTo(270, 90); ctx.moveTo(150, 15); ctx.lineTo(150, 165); ctx.stroke();
+            ctx.fillText("x", 275, 95); ctx.fillText("y", 145, 12);
+            // Terminal Arm in Q2
+            ctx.lineWidth = 3; ctx.strokeStyle = "#e74c3c"; ctx.beginPath(); ctx.moveTo(150, 90); ctx.lineTo(70, 40); ctx.stroke();
+            // Quadrant text labels
+            ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillText("Q I", 210, 50); ctx.fillText("Q II", 70, 50); ctx.fillText("Q III", 70, 130); ctx.fillText("Q IV", 210, 130);
+            // Theta indicator
+            ctx.beginPath(); ctx.arc(150, 90, 20, Math.PI * 2, Math.PI * 1.81, true); ctx.strokeStyle = "#2ecc71"; ctx.stroke();
+            ctx.fillStyle = "#2ecc71"; ctx.fillText("θ", 160, 65);
+        } 
+        else { diagramArea.style.display = "none"; }
+    }
+
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    function initGame() { 
+        questions = JSON.parse(JSON.stringify(pool)); shuffle(questions); questions.forEach(q => shuffle(q.o)); 
+        currentIdx = 0; hp = 100; coins = 0; hpFill.style.width = "100%"; cCount.innerText = "0"; 
+        document.getElementById("game-ui").style.display = "block"; document.getElementById("win-screen").style.display = "none"; document.getElementById("lose-screen").style.display = "none"; 
+        loadQ(); 
+    }
+    
+    function loadQ() { 
+        fb.style.display = "none"; let q = questions[currentIdx]; tag.innerHTML = q.t; qText.innerHTML = q.q; 
+        sCount.innerText = `${currentIdx + 1}/${questions.length}`; pBar.style.width = `${(currentIdx / questions.length) * 100}%`; 
+        drawDiagram(q.diagram); optCont.innerHTML = ""; 
+        q.o.forEach(opt => { 
+            let btn = document.createElement("button"); btn.classList.add("option-btn"); btn.innerHTML = opt.text; btn.onclick = () => checkAns(opt, q.h); optCont.appendChild(btn); 
+        }); 
+    }
+    
+    function checkAns(opt, hint) { 
+        Array.from(optCont.children).forEach(b => b.disabled = true); fb.style.display = "block"; 
+        if (opt.c) { 
+            fb.className = "feedback-box feedback-success"; fbText.innerHTML = "Correct! " + opt.f; hText.innerText = ""; coins += 20; cCount.innerText = coins; 
+        } else { 
+            fb.className = "feedback-box feedback-fail"; fbText.innerHTML = "Wrong! " + opt.f; hText.innerHTML = "💡 Hint: " + hint; hp -= 25; if (hp < 0) hp = 0; hpFill.style.width = hp + "%"; 
+            if (hp <= 0) { setTimeout(() => { document.getElementById("game-ui").style.display = "none"; document.getElementById("lose-screen").style.display = "block"; }, 1000); }
+        } 
+    }
+    
+    function nextStage() { currentIdx++; if (currentIdx < questions.length) { loadQ(); } else { document.getElementById("game-ui").style.display = "none"; document.getElementById("win-screen").style.display = "block"; document.getElementById("final-coins").innerText = coins; pBar.style.width = "100%"; } }
+    function resetGame() { initGame(); }
+    initGame();
+</script>
+</body>
+</html>
