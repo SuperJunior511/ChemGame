@@ -247,6 +247,36 @@
         }
         .btn-action:hover { background-color: #175856; }
         .btn-next { background-color: #3d5a80; margin-left: 10px; }
+
+        /* ---- ION COLOUR QUIZ (Mode 6) ---- */
+        #colour-container { display: none; max-width: 550px; background: white; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .colour-option-btn {
+            padding: 14px 18px; font-size: 1.05rem; font-weight: bold;
+            border: 3px solid transparent; border-radius: 12px; cursor: pointer;
+            background-color: #f8fafa; color: #2f3e46;
+            display: flex; align-items: center; gap: 10px; text-align: left;
+            transition: all 0.15s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+        }
+        .colour-option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.10); border-color: #2b7a78; }
+        .colour-option-btn:disabled { cursor: not-allowed; opacity: 0.85; }
+        .colour-option-btn.selected { border-color: #3d5a80; background-color: #eef4f8; }
+        .colour-option-btn.correct { border-color: #26c485 !important; background-color: #e6f9f0 !important; color: #1d8f5f !important; }
+        .colour-option-btn.wrong   { border-color: #ff6b6b !important; background-color: #ffe9e9 !important; color: #c0392b !important; }
+
+        .colour-swatch {
+            display: inline-block; width: 28px; height: 28px; border-radius: 6px;
+            border: 2px solid #555; flex-shrink: 0; box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+        }
+        .colour-swatch-c-colourless { background: linear-gradient(135deg, #ffffff 50%, #f0f0f0 100%); }
+        .colour-swatch-c-green      { background-color: #2ecc71; }
+        .colour-swatch-c-blue       { background-color: #2980b9; }
+        .colour-swatch-c-orange     { background-color: #e67e22; }
+        .colour-swatch-c-yellow     { background-color: #f1c40f; }
+        .colour-swatch-c-purple     { background-color: #8e44ad; }
+        .colour-swatch-c-brown      { background-color: #6e4b1e; }
+        .colour-swatch-c-pink       { background-color: #ff69b4; }
+        .colour-swatch-c-palepink   { background: linear-gradient(135deg, #ffd1e0 50%, #ffe4ee 100%); }
     </style>
 </head>
 <body>
@@ -269,6 +299,7 @@
         <button id="btn-mode-quiz-fn" class="mode-btn" onclick="switchGameMode('quiz-fn')">🧪 Formula ➔ Name</button>
         <button id="btn-mode-flash" class="mode-btn" onclick="switchGameMode('flash')">📇 Flashcards</button>
         <button id="btn-mode-ptable" class="mode-btn" onclick="switchGameMode('ptable')">📅 Periodic Table Puzzle</button>
+        <button id="btn-mode-colour" class="mode-btn" onclick="switchGameMode('colour')">🌈 Ion Colour Quiz</button>
     </div>
 
     <!-- MODE 1: MATCHING ENGINE DISPLAY -->
@@ -371,6 +402,27 @@
             <button class="btn-action" style="background-color: #3d5a80;" onclick="resetPeriodicTablePuzzle()">Restart Table Puzzle 🔄</button>
         </div>
     </div>
+
+    <!-- MODE 6: ION COLOUR QUIZ CONTAINER -->
+    <div id="colour-container">
+        <div style="font-size: 1rem; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;" id="colour-progress">Question 1 / 16</div>
+        <div id="colour-question" style="font-size: 1.5rem; font-weight: bold; color: #2f3e46; margin-bottom: 20px;">
+            What colour is <span id="colour-ionsymbol" style="color: #2b7a78;">K⁺</span>?
+        </div>
+
+        <div id="colour-options" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 460px; margin: 0 auto 18px auto;">
+            <!-- 4 buttons injected by JS -->
+        </div>
+
+        <div id="colour-feedback" style="font-size: 1.1rem; font-weight: bold; min-height: 25px; margin-bottom: 15px;"></div>
+
+        <div style="margin-top: 18px;">
+            <button id="colour-next-btn" class="btn-action btn-next" onclick="nextColourQuestion()" style="display: none;">Next Question ➡️</button>
+        </div>
+        <div class="reset-container">
+            <button class="btn-action" style="background-color: #e07a5f;" onclick="resetColourQuiz()">Restart Colour Quiz 🔄</button>
+        </div>
+    </div>
     <script>
         // MASTER CENTRAL DATABASE ARRAY FOR GAMES 1, 2, AND 3
         const chemistryDatabase = [
@@ -423,6 +475,36 @@
             { symbol: "NO₃⁻", name: "Nitrate ion", level: 3 }
         ];
 
+        // 🌈 ION COLOUR DATABASE FOR MODE 6
+        // 18 ions sourced entirely from Chem1.PNG handwritten table:
+        //   • Column 1 (7): K⁺, Na⁺, Ca²⁺, NH₄⁺, Cl⁻, SO₄²⁻, NO₃⁻ — all colourless
+        //   • Column 2 (8): Cr³⁺, Mn²⁺, Fe²⁺, Fe³⁺, Ni²⁺, Cu²⁺, Zn²⁺, Ag⁺ — coloured except Ag⁺
+        //   • Column 3 (3): CrO₄²⁻, Cr₂O₇²⁻, MnO₄⁻ — all coloured
+        // Each session picks all 18 (shuffled order).
+        const ionColourDatabase = [
+            // ── Column 1: 7 colourless ions ──
+            { ion: "K⁺",      name: "Potassium ion",       colour: "colourless" },
+            { ion: "Na⁺",     name: "Sodium ion",          colour: "colourless" },
+            { ion: "Ca²⁺",    name: "Calcium ion",         colour: "colourless" },
+            { ion: "NH₄⁺",    name: "Ammonium ion",        colour: "colourless" },
+            { ion: "Cl⁻",     name: "Chloride ion",        colour: "colourless" },
+            { ion: "SO₄²⁻",   name: "Sulphate ion",        colour: "colourless" },
+            { ion: "NO₃⁻",    name: "Nitrate ion",         colour: "colourless" },
+            // ── Column 2: 8 ions (mostly coloured) ──
+            { ion: "Cr³⁺",    name: "Chromium(III) ion",   colour: "green" },
+            { ion: "Mn²⁺",    name: "Manganese(II) ion",   colour: "palepink" },  // "pink (very pale pink)"
+            { ion: "Fe²⁺",    name: "Iron(II) ion",        colour: "green" },
+            { ion: "Fe³⁺",    name: "Iron(III) ion",       colour: "yellow" },
+            { ion: "Ni²⁺",    name: "Nickel(II) ion",      colour: "green" },
+            { ion: "Cu²⁺",    name: "Copper(II) ion",      colour: "blue" },
+            { ion: "Zn²⁺",    name: "Zinc ion",            colour: "colourless" },
+            { ion: "Ag⁺",     name: "Silver ion",          colour: "colourless" },
+            // ── Column 3: 3 coloured polyatomic anions ──
+            { ion: "CrO₄²⁻",  name: "Chromate ion",        colour: "yellow" },
+            { ion: "Cr₂O₇²⁻", name: "Dichromate ion",      colour: "orange" },
+            { ion: "MnO₄⁻",   name: "Permanganate ion",    colour: "purple" }
+        ];
+
         // CONFIGURATION DATA FILE FOR THE PERIODIC TABLE PUZZLE (NOW WITH SCIENTIFIC GROUPS & CURRICULUM CHARACTERISTICS)
         const periodicTableData = [
             { num: 1, sym: "H", name: "Hydrogen", row: 1, col: 1, type: "pt-reactive-nonmetal", group: "Group 1", char: "Reactive Non-metal gas with 1 valence electron." },
@@ -470,8 +552,8 @@
         let activePuzzleElement = null;
         let elementsSolvedCount = 0;
 
-        let gameScores = { 'match': 0, 'quiz-nf': 0, 'quiz-fn': 0, 'ptable': 0 };
-        let fullMarks = { 'match': 470, 'quiz-nf': 940, 'quiz-fn': 940, 'ptable': 450 };
+        let gameScores = { 'match': 0, 'quiz-nf': 0, 'quiz-fn': 0, 'ptable': 0, 'colour': 0 };
+        let fullMarks = { 'match': 470, 'quiz-nf': 940, 'quiz-fn': 940, 'ptable': 450, 'colour': 360 };
         let currentActiveTabKey = 'match';
 
         // ⚡ NEW: Tracking Boolean to ensure she only scores on her first attempt!
@@ -488,16 +570,18 @@
             prepareFlashcards();
             resetPeriodicTablePuzzle();
             document.getElementById('ptable-container').style.display = 'none';
+            document.getElementById('colour-container').style.display = 'none';
         }
 
         function switchGameMode(mode) {
-            const tabs = ['match', 'quiz-nf', 'quiz-fn', 'flash', 'ptable'];
+            const tabs = ['match', 'quiz-nf', 'quiz-fn', 'flash', 'ptable', 'colour'];
             const containers = {
                 'match': document.getElementById('matching-view'),
                 'quiz-nf': document.getElementById('quiz-container'),
                 'quiz-fn': document.getElementById('quiz-container'),
                 'flash': document.getElementById('flashcard-container'),
-                'ptable': document.getElementById('ptable-container')
+                'ptable': document.getElementById('ptable-container'),
+                'colour': document.getElementById('colour-container')
             };
 
             tabs.forEach(t => document.getElementById(`btn-mode-${t}`).classList.remove('active'));
@@ -514,11 +598,12 @@
                 banner.style.display = 'inline-flex';
                 document.getElementById('score-current').textContent = gameScores[mode];
                 document.getElementById('score-full').textContent = fullMarks[mode];
-                
-                if (mode === 'match') label.textContent = "🧩 Card Match Score:";
+
+                if (mode === 'match')   label.textContent = "🧩 Card Match Score:";
                 if (mode === 'quiz-nf') label.textContent = "📝 Name ➔ Formula Score:";
                 if (mode === 'quiz-fn') label.textContent = "🧪 Formula ➔ Name Score:";
-                if (mode === 'ptable') label.textContent = "📅 Table Puzzle Score:";
+                if (mode === 'ptable')  label.textContent = "📅 Table Puzzle Score:";
+                if (mode === 'colour')  label.textContent = "🌈 Ion Colour Score:";
             } else {
                 banner.style.display = 'none';
             }
@@ -532,6 +617,9 @@
                 loadFlashcard();
             } else if (mode === 'ptable') {
                 resetPeriodicTablePuzzle();
+            } else if (mode === 'colour') {
+                prepareColourDeck();
+                loadColourQuestion();
             }
         }
 
@@ -739,7 +827,7 @@
             wrapper.classList.remove('flipped');
             setTimeout(() => {
                 document.getElementById('flash-progress').textContent = `Card ${currentFlashIndex + 1} / ${flashDeck.length}`;
-                
+
                 if (flashcardSideOrientation === 'symbol-front') {
                     document.getElementById('flash-front-title').textContent = "Formula / Symbol";
                     document.getElementById('flash-front-text').textContent = currentCard.symbol;
@@ -752,6 +840,123 @@
                     document.getElementById('flash-back-text').textContent = currentCard.symbol;
                 }
             }, 150);
+        }
+
+        // ============================================================
+        // 🌈 MODE 6 — ION COLOUR QUIZ (multiple choice: 4 colour buttons)
+        // First-attempt correct = +20; wrong = −5; second-attempt correct = +0 (encouraged retry)
+        // Reset button wipes score + reshuffles the deck
+        // ============================================================
+        const COLOUR_OPTIONS = ["colourless", "green", "blue", "orange", "yellow", "purple", "brown", "pink", "palepink"];
+        let colourDeck = [];
+        let currentColourIndex = 0;
+        let colourFirstTry = true;
+        let currentColourQuestion = null;
+
+        function prepareColourDeck() {
+            // 复制 + 洗牌
+            colourDeck = ionColourDatabase.map((it, idx) => ({ ...it, _idx: idx }));
+            // 把所有 colourless 的离子（5 个）只随机留 3 个，免得题太单调；
+            // 但保留全部 16 题（用户的 Chem.png 一共 16 行），所以直接全用：
+            colourDeck.sort(() => Math.random() - 0.5);
+            currentColourIndex = 0;
+        }
+
+        function buildColourOptions(correctColour) {
+            // 把所有 colourless 单独标 key 以便前端展示 swatch
+            const correct = { key: correctColour, text: correctColour.charAt(0).toUpperCase() + correctColour.slice(1) };
+            const pool = COLOUR_OPTIONS
+                .filter(c => c !== correctColour)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(c => ({ key: c, text: c.charAt(0).toUpperCase() + c.slice(1) }));
+            const all = [correct, ...pool].sort(() => Math.random() - 0.5);
+            return { correctKey: correctColour, all };
+        }
+
+        function loadColourQuestion() {
+            if (currentColourIndex >= colourDeck.length) {
+                document.getElementById('colour-progress').textContent = "Trilogy Completed! 🎉";
+                // 关键修复：只更新 ionsymbol 和 feedback 的文本，不要用 innerHTML 覆盖 #colour-question ，
+                // 否则 reset 后 ionsymbol span 元素消失，下次调用 loadColourQuestion 会 NPE。
+                const ionSpan = document.getElementById('colour-ionsymbol');
+                if (ionSpan) ionSpan.innerHTML = "<span style='color:#26c485;'>Excellent Job Master!</span>";
+                document.getElementById('colour-options').innerHTML = "";
+                document.getElementById('colour-feedback').innerHTML = "<span class='feedback-correct'>You cleared all ion colours!</span>";
+                document.getElementById('colour-next-btn').style.display = 'none';
+                return;
+            }
+
+            colourFirstTry = true;
+            currentColourQuestion = colourDeck[currentColourIndex];
+
+            document.getElementById('colour-progress').textContent = `Question ${currentColourIndex + 1} / ${colourDeck.length}`;
+            document.getElementById('colour-ionsymbol').textContent = currentColourQuestion.ion + " (" + currentColourQuestion.name + ")";
+
+            const opts = buildColourOptions(currentColourQuestion.colour);
+            const optionsContainer = document.getElementById('colour-options');
+            optionsContainer.innerHTML = "";
+
+            opts.all.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'colour-option-btn';
+                btn.innerHTML = `<span class="colour-swatch colour-swatch-c-${opt.key}"></span><span>${opt.text}</span>`;
+                btn.setAttribute('data-key', opt.key);
+                btn.onclick = function () { onColourOptionClick(this); };
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('colour-feedback').innerHTML = "";
+            document.getElementById('colour-next-btn').style.display = 'none';
+        }
+
+        function onColourOptionClick(btn) {
+            if (document.getElementById('colour-next-btn').style.display === 'inline-block') return; // 答过了，等下一题
+            const chosenKey = btn.getAttribute('data-key');
+            const correctKey = currentColourQuestion.colour;
+            const feedback = document.getElementById('colour-feedback');
+
+            // 禁用所有按钮，防止重复点
+            document.querySelectorAll('.colour-option-btn').forEach(b => b.disabled = true);
+
+            if (chosenKey === correctKey) {
+                btn.classList.add('correct');
+                feedback.innerHTML = `<span class='feedback-correct'>✓ Correct! ${currentColourQuestion.ion} is ${correctKey}.</span>`;
+                document.getElementById('colour-next-btn').style.display = 'inline-block';
+                document.getElementById('colour-next-btn').focus();
+                if (colourFirstTry) addGamePoints(20);
+                else addGamePoints(0);
+            } else {
+                btn.classList.add('wrong');
+                feedback.innerHTML = `<span class='feedback-wrong'>✗ Try Again!</span><div class='feedback-hint'>Hint: look for the highlighted colour after retry.</div>`;
+                colourFirstTry = false;
+                // 重新启用除已选的错误项之外的按钮
+                document.querySelectorAll('.colour-option-btn').forEach(b => {
+                    if (b !== btn) b.disabled = false;
+                });
+                addGamePoints(-5);
+            }
+        }
+
+        function nextColourQuestion() {
+            currentColourIndex++;
+            loadColourQuestion();
+        }
+
+        function resetColourQuiz() {
+            // ⚡ 同 quiz 模式：重置时把本模式分数归零
+            gameScores['colour'] = 0;
+            if (currentActiveTabKey === 'colour') {
+                document.getElementById('score-current').textContent = 0;
+            }
+            prepareColourDeck();
+            currentColourIndex = 0;  // 关键：重置索引，不然 loadColourQuestion 会走到"已完成"分支
+            colourFirstTry = true;
+            // 清空进度 + 选项区域（防止旧题残留）
+            document.getElementById('colour-progress').textContent = `Question 1 / ${colourDeck.length}`;
+            document.getElementById('colour-feedback').innerHTML = "";
+            document.getElementById('colour-next-btn').style.display = 'none';
+            loadColourQuestion();
         }
         // --- 📅 PERIODIC TABLE PUZZLE ENGINE WITH SCORE RESET CORRECTIONS ---
         function resetPeriodicTablePuzzle() {
@@ -843,4 +1048,3 @@
     </script>
 </body>
 </html>
-
