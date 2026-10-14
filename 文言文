@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文言文溫習王:《論仁》篇</title>
+<style>
+    body {
+        font-family: 'Microsoft JhengHei', 'PMingLiU', 'PingFang TC', 'Segoe UI', sans-serif;
+        background-color: #f7f3e9;
+        color: #2c2418;
+        text-align: center;
+        padding: 10px;
+        margin: 0;
+    }
+    h1 {
+        color: #8b2c2c;
+        margin-bottom: 5px;
+        font-size: 2rem;
+        letter-spacing: 3px;
+        font-weight: bold;
+    }
+    .instructions { color: #6e604c; margin-bottom: 15px; font-size: 0.95rem; }
+
+    .score-banner {
+        background: linear-gradient(135deg, #8b2c2c 0%, #6e1f1f 100%);
+        color: white;
+        padding: 10px 25px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(139, 44, 44, 0.35);
+        position: sticky;
+        top: 10px;
+        z-index: 1000;
+        margin: 5px auto 20px auto;
+    }
+    #score-display-box {
+        background: #f5e6c8;
+        color: #8b2c2c;
+        padding: 2px 15px;
+        border-radius: 15px;
+        font-family: monospace;
+        font-size: 1.3rem;
+    }
+
+    .mode-switcher {
+        margin: 15px auto;
+        background-color: #f5e6c8;
+        padding: 6px;
+        border-radius: 30px;
+        display: inline-flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        max-width: 1000px;
+    }
+    .mode-btn {
+        border: none;
+        background: none;
+        padding: 8px 13px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #8b2c2c;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .mode-btn.active {
+        background-color: #8b2c2c;
+        color: white;
+        box-shadow: 0 4px 8px rgba(139, 44, 44, 0.3);
+    }
+
+    h2 {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        border-bottom: 3px solid;
+        display: inline-block;
+        padding-bottom: 5px;
+        font-size: 1.3rem;
+    }
+    .title-1 { color: #8b2c2c; border-color: #8b2c2c; }
+    .title-2 { color: #2b7a78; border-color: #2b7a78; }
+    .title-3 { color: #b58a23; border-color: #b58a23; }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        max-width: 950px;
+        margin: 0 auto;
+    }
+    #vocab-view, #people-view { display: none; }
+    .vocab-board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        max-width: 900px;
+        margin: 0 auto;
+        align-items: start;
+    }
+    .vocab-column-title {
+        font-weight: bold;
+        color: #8b2c2c;
+        font-size: 1.05rem;
+        padding: 8px 12px;
+        border-bottom: 2px solid #8b2c2c;
+        margin-bottom: 10px;
+        background: #fdf8ed;
+        border-radius: 8px 8px 0 0;
+    }
+    #vocab-terms, #vocab-defs {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .vocab-card {
+        height: auto;
+        min-height: 56px;
+        font-size: 1.05rem;
+        line-height: 1.4;
+    }
+    .card {
+        background: white;
+        min-height: 75px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.05rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+        border: 3px solid transparent;
+        transition: all 0.2s ease;
+        user-select: none;
+        padding: 8px;
+        box-sizing: border-box;
+        color: #2c2418;
+        text-align: center;
+        line-height: 1.3;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: #8b2c2c; background-color: #fce8e8; }
+    .card.matched {
+        background-color: #b58a23 !important;
+        color: white !important;
+        visibility: hidden;
+        opacity: 0;
+        transform: scale(0.8);
+        pointer-events: none;
+    }
+
+    .quiz-container {
+        max-width: 620px;
+        background: white;
+        margin: 20px auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        display: none;
+        text-align: left;
+    }
+
+    .passage-box {
+        background: #fdf8ed;
+        border-left: 5px solid #8b2c2c;
+        padding: 14px 18px;
+        margin: 10px auto 20px auto;
+        border-radius: 4px;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #2c2418;
+        font-family: 'Microsoft JhengHei', 'PMingLiU', serif;
+    }
+
+    #sentence-question, #translate-prompt, #theme-question, #rhetoric-question {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c2418;
+        margin-bottom: 14px;
+        line-height: 1.6;
+    }
+
+    #translate-input {
+        width: 95%;
+        padding: 12px 18px;
+        font-size: 1.15rem;
+        font-weight: normal;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        outline: none;
+        margin-bottom: 15px;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    #translate-input:focus { border-color: #8b2c2c; }
+
+    .option-btn {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 12px 18px;
+        margin: 8px 0;
+        background-color: #fcf6e8;
+        border: 3px solid transparent;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: #2c2418;
+        transition: all 0.15s ease;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    .option-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        border-color: #8b2c2c;
+        background-color: #fef9ee;
+    }
+    .option-btn:disabled { cursor: not-allowed; opacity: 0.92; }
+    .option-btn.correct { border-color: #2b7a78 !important; background-color: #def2f1 !important; color: #1c5b5a !important; }
+    .option-btn.wrong { border-color: #c0392b !important; background-color: #fbe5e1 !important; color: #9b2d20 !important; }
+
+    #sentence-feedback, #translate-feedback, #theme-feedback, #rhetoric-feedback {
+        font-size: 1.1rem;
+        font-weight: bold;
+        min-height: 25px;
+        margin: 12px 0 15px 0;
+    }
+    .feedback-correct { color: #2b7a78; }
+    .feedback-wrong { color: #c0392b; }
+    .feedback-hint {
+        color: #7a6f5f;
+        font-weight: normal;
+        font-size: 0.95rem;
+        margin-top: 8px;
+        line-height: 1.5;
+    }
+
+    .btn-action {
+        background-color: #8b2c2c;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-action:hover { background-color: #6e1f1f; }
+    .btn-next {
+        background-color: #b58a23;
+        color: white;
+        margin-left: 10px;
+    }
+    .btn-next:hover { background-color: #8e6a1a; }
+
+    .reset-container { margin: 25px 0 10px 0; text-align: center; }
+
+    .reference-box {
+        background: #f0e8d5;
+        border: 2px dashed #8b2c2c;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #2c2418;
+        display: none;
+    }
+    .reference-box.show { display: block; }
+    .reference-title {
+        font-weight: bold;
+        color: #8b2c2c;
+        margin-bottom: 6px;
+    }
+
+    .keyterm {
+        color: #8b2c2c;
+        font-weight: bold;
+        text-decoration: underline dotted;
+        cursor: help;
+    }
+</style>
+</head>
+<body>
+
+<h1>📜 文言文溫習王:《論仁》篇</h1>
+<p class="instructions">香港 DSE 中文言文應試練習 — 涵蓋字詞、句意、翻譯、主旨、手法、人物事跡</p>
+
+<div class="score-banner" id="game-score-banner">
+    <span id="score-label">🧩 字詞配對分數:</span>
+    <span id="score-display-box">
+        <span id="score-current">0</span> / <span id="score-full">100</span>
+    </span>
+</div>
+<br>
+
+<div class="mode-switcher">
+    <button id="btn-mode-vocab" class="mode-btn active" onclick="switchGameMode('vocab')">🧩 字詞配對</button>
+    <button id="btn-mode-sentence" class="mode-btn" onclick="switchGameMode('sentence')">📖 句意選擇</button>
+    <button id="btn-mode-translate" class="mode-btn" onclick="switchGameMode('translate')">✍️ 翻譯填空</button>
+    <button id="btn-mode-theme" class="mode-btn" onclick="switchGameMode('theme')">📌 主旨判斷</button>
+    <button id="btn-mode-rhetoric" class="mode-btn" onclick="switchGameMode('rhetoric')">🎭 手法辨識</button>
+    <button id="btn-mode-people" class="mode-btn" onclick="switchGameMode('people')">⚔️ 人物事跡</button>
+</div>
+
+<!-- MODE 1: 字詞配對 -->
+<div id="vocab-view">
+    <h2 class="title-1">字詞配對(16對)</h2>
+    <p style="color:#6e604c;font-size:0.9rem;">點擊左邊文言詞語與右邊解釋配對。每對+10分,錯配-3分。兩列各自隨機排序。</p>
+    <div class="vocab-board">
+        <div>
+            <div class="vocab-column-title">📖 文言詞語</div>
+            <div id="vocab-terms"></div>
+        </div>
+        <div>
+            <div class="vocab-column-title">💡 詞語解釋</div>
+            <div id="vocab-defs"></div>
+        </div>
+    </div>
+    <div class="reset-container">
+        <button class="btn-action" onclick="buildVocabGame()">重洗字詞牌組 🔄</button>
+    </div>
+</div>
+
+<!-- MODE 2: 句意選擇 -->
+<div class="quiz-container" id="sentence-container">
+    <div style="font-size:1rem;color:#7a6f5f;font-weight:bold;margin-bottom:5px;text-align:center;" id="sentence-progress">題目 1 / 8</div>
+    <div class="passage-box" id="sentence-passage">文言句子</div>
+    <div id="sentence-question">選擇最接近的白話翻譯:</div>
+    <div id="sentence-options"></div>
+    <div id="sentence-feedback"></div>
+    <div style="text-align:center;">
+        <button id="sentence-next-btn" class="btn-action btn-next" onclick="nextSentenceQuestion()" style="display:none;">下一題 ➡️</button>
+    </div>
+    <div class="reset-container">
+        <button class="btn-action" style="background-color:#b58a23;" onclick="resetSentenceQuiz()">重新開始 🔄</button>
+    </div>
+</div>
+
+<!-- MODE 3: 翻譯填空 -->
+<div class="quiz-container" id="translate-container">
+    <div style="font-size:1rem;color:#7a6f5f;font-weight:bold;margin-bottom:5px;text-align:center;" id="translate-progress">題目 1 / 6</div>
+    <div class="passage-box" id="translate-passage">文言原句</div>
+    <div id="translate-prompt">請輸入白話翻譯(批改會比對關鍵詞):</div>
+    <input type="text" id="translate-input" placeholder="例如:不仁的人不可以長時間處於困窘之中" autocomplete="off">
+    <div id="translate-feedback"></div>
+    <div class="reference-box" id="translate-reference">
+        <div class="reference-title">📖 參考譯文</div>
+        <div id="translate-ref-text"></div>
+    </div>
+    <div style="text-align:center;">
+        <button class="btn-action" onclick="checkTranslateAnswer()">提交答案</button>
+        <button id="translate-next-btn" class="btn-action btn-next" onclick="nextTranslateQuestion()" style="display:none;">下一題 ➡️</button>
+    </div>
+    <div class="reset-container">
+        <button class="btn-action" style="background-color:#b58a23;" onclick="resetTranslateQuiz()">重新開始 🔄</button>
+    </div>
+</div>
+
+<!-- MODE 4: 主旨判斷 -->
+<div class="quiz-container" id="theme-container">
+    <div style="font-size:1rem;color:#7a6f5f;font-weight:bold;margin-bottom:5px;text-align:center;" id="theme-progress">題目 1 / 4</div>
+    <div class="passage-box" id="theme-passage">章節原文</div>
+    <div id="theme-question">此則最主要是說明:</div>
+    <div id="theme-options"></div>
+    <div id="theme-feedback"></div>
+    <div style="text-align:center;">
+        <button id="theme-next-btn" class="btn-action btn-next" onclick="nextThemeQuestion()" style="display:none;">下一題 ➡️</button>
+    </div>
+    <div class="reset-container">
+        <button class="btn-action" style="background-color:#b58a23;" onclick="resetThemeQuiz()">重新開始 🔄</button>
+    </div>
+</div>
+
+<!-- MODE 5: 手法辨識 -->
+<div class="quiz-container" id="rhetoric-container">
+    <div style="font-size:1rem;color:#7a6f5f;font-weight:bold;margin-bottom:5px;text-align:center;" id="rhetoric-progress">題目 1 / 4</div>
+    <div class="passage-box" id="rhetoric-passage">章節原文</div>
+    <div id="rhetoric-question">此段主要運用了什麼表現手法?</div>
+    <div id="rhetoric-options"></div>
+    <div id="rhetoric-feedback"></div>
+    <div style="text-align:center;">
+        <button id="rhetoric-next-btn" class="btn-action btn-next" onclick="nextRhetoricQuestion()" style="display:none;">下一題 ➡️</button>
+    </div>
+    <div class="reset-container">
+        <button class="btn-action" style="background-color:#b58a23;" onclick="resetRhetoricQuiz()">重新開始 🔄</button>
+    </div>
+</div>
+
+<!-- MODE 6: 人物事跡配對 -->
+<div id="people-view">
+    <h2 class="title-3">殺身成仁人物事跡(4對)</h2>
+    <p style="color:#6e604c;font-size:0.9rem;">配對歷史人物與其名言。</p>
+    <div class="grid" id="people-grid"></div>
+    <div class="reset-container">
+        <button class="btn-action" onclick="buildPeopleGame()">重洗人物牌組 🔄</button>
+    </div>
+</div>
+
+<script>
+/* ================= 數據庫 ================= */
+
+// 模式 1: 字詞配對 (16對)
+const vocabDatabase = [
+    { term: "約", explain: "困窘、窮困" },
+    { term: "安仁", explain: "因實踐仁德而心安" },
+    { term: "利仁", explain: "認為仁德有利而行仁" },
+    { term: "道", explain: "正當的方法" },
+    { term: "處(不處)", explain: "接受、留處" },
+    { term: "去", explain: "離開、擺脫" },
+    { term: "造次", explain: "倉卒匆忙之時" },
+    { term: "顛沛", explain: "困頓流離之際" },
+    { term: "終食之間違仁", explain: "連吃一頓飯也不違背仁德" },
+    { term: "克己", explain: "克制私慾" },
+    { term: "復禮", explain: "使言行回歸禮的規範" },
+    { term: "目", explain: "細目、具體綱目" },
+    { term: "殺身成仁", explain: "犧牲生命以成全仁德" },
+    { term: "忠", explain: "盡己之心,主動成全他人" },
+    { term: "恕", explain: "將心比心、推己及人" },
+    { term: "己所不欲,勿施於人", explain: "不願承受的不強加於人" }
+];
+
+// 模式 2: 句意選擇 (8題,4選1)
+const sentenceDatabase = [
+    {
+        passage: "不仁者不可以久處約",
+        question: "「不仁者不可以久處約」最貼切的白話是:",
+        options: [
+            { text: "不仁的人不可以長時間處於困窘中", correct: true },
+            { text: "不仁的人不可以長時間居住", correct: false },
+            { text: "不仁的人不可以處於富貴中", correct: false },
+            { text: "不仁的人不能與人相處", correct: false }
+        ]
+    },
+    {
+        passage: "仁者安仁",
+        question: "「仁者安仁」意思是:",
+        options: [
+            { text: "仁德的人生活安穩", correct: false },
+            { text: "仁德的人因實踐仁德而心安", correct: true },
+            { text: "仁德的人安於富貴", correct: false },
+            { text: "仁德的人安於現狀", correct: false }
+        ]
+    },
+    {
+        passage: "知者利仁",
+        question: "「知者利仁」意思是:",
+        options: [
+            { text: "聰明的人利用仁德", correct: false },
+            { text: "聰明的人認為仁德有利而行仁", correct: true },
+            { text: "聰明的人用仁來獲利", correct: false },
+            { text: "聰明的人利益他人", correct: false }
+        ]
+    },
+    {
+        passage: "富與貴......不以其道得之,不處也",
+        question: "「不以其道得之,不處也」意思是:",
+        options: [
+            { text: "若不以正當方法取得,君子絕不接受", correct: true },
+            { text: "富貴人人都想要,不管方法", correct: false },
+            { text: "富貴不靠正道就不會來", correct: false },
+            { text: "富貴人人都想要,君子也不理會", correct: false }
+        ]
+    },
+    {
+        passage: "君子去仁,惡乎成名?",
+        question: "「君子去仁,惡乎成名?」最貼切意思:",
+        options: [
+            { text: "君子離開仁,哪裏成名?", correct: false },
+            { text: "君子違背仁,怎樣成就名聲?", correct: true },
+            { text: "君子背棄仁,名聲還可以嗎?", correct: false },
+            { text: "君子除去仁,哪需要名聲?", correct: false }
+        ]
+    },
+    {
+        passage: "造次必於是,顛沛必於是",
+        question: "「造次必於是,顛沛必於是」意思:",
+        options: [
+            { text: "倉卒或困頓流離時,必定堅守仁德", correct: true },
+            { text: "跌倒必定在這裏", correct: false },
+            { text: "顛簸困頓必定如此", correct: false },
+            { text: "匆忙和倒斃必定如此", correct: false }
+        ]
+    },
+    {
+        passage: "克己復禮為仁",
+        question: "「克己復禮為仁」最貼切意思:",
+        options: [
+            { text: "剋制自己,回復禮貌,是仁", correct: false },
+            { text: "克制私慾,使言行合於禮,就是仁", correct: true },
+            { text: "戰勝自己,恢復禮節,是仁", correct: false },
+            { text: "克服自己,恢復禮制,是仁", correct: false }
+        ]
+    },
+    {
+        passage: "殺身以成仁",
+        question: "「殺身以成仁」意思是:",
+        options: [
+            { text: "殺害生命來完成仁", correct: false },
+            { text: "犧牲生命來成全仁德", correct: true },
+            { text: "殺身是為了變得仁慈", correct: false },
+            { text: "殺害身體就是仁", correct: false }
+        ]
+    }
+];
+
+// 模式 3: 翻譯填空 (6題,批改關鍵詞)
+const translateDatabase = [
+    {
+        passage: "不仁者不可以久處約,不可以長處樂。",
+        reference: "不仁的人不可以長時間處於困窘之中,也不可以長時間處於安樂之中。",
+        keywords: ["困窘", "安樂"]
+    },
+    {
+        passage: "仁者安仁,知者利仁。",
+        reference: "仁者因實踐仁德而心安,知者因仁德有利而行仁。",
+        keywords: ["心安", "有利"]
+    },
+    {
+        passage: "富與貴,是人之所欲也;不以其道得之,不處也。",
+        reference: "富貴是人人都想要;若不以正當的方法取得,君子不會接受。",
+        keywords: ["正當", "接受"]
+    },
+    {
+        passage: "君子去仁,惡乎成名?",
+        reference: "君子若離棄仁德,怎麼能成就名聲?",
+        keywords: ["離棄", "名聲"]
+    },
+    {
+        passage: "克己復禮為仁。一日克己復禮,天下歸仁焉。",
+        reference: "克制私慾,使言行合於禮,就是仁。一旦人人克己復禮,天下便歸於仁了。",
+        keywords: ["私慾", "合於禮"]
+    },
+    {
+        passage: "志士仁人,無求生以害仁,有殺身以成仁。",
+        reference: "志士仁人,不會為了苟且偷生而損害仁德,只會犧牲生命來成全仁德。",
+        keywords: ["苟且偷生", "成全"]
+    }
+];
+
+// 模式 4: 主旨判斷 (4題,每則1題)
+const themeDatabase = [
+    {
+        passage: "子曰:「不仁者不可以久處約,不可以長處樂。仁者安仁,知者利仁。」",
+        question: "此則最主要是說明:",
+        options: [
+            { text: "仁與智的分別", correct: false },
+            { text: "三種人在不同處境下的表現和心態", correct: true },
+            { text: "處境對仁的影響", correct: false },
+            { text: "仁者與知者的關係", correct: false }
+        ]
+    },
+    {
+        passage: "子曰:「富與貴......君子去仁,惡乎成名?君子無終食之間違仁,造次必於是,顛沛必於是。」",
+        question: "此則最主要是闡述:",
+        options: [
+            { text: "君子如何對待富貴", correct: false },
+            { text: "君子如何對待貧賤", correct: false },
+            { text: "君子重仁輕利、無時無刻堅守仁德", correct: true },
+            { text: "君子怎樣成就名聲", correct: false }
+        ]
+    },
+    {
+        passage: "顏淵問仁。子曰:「克己復禮為仁......非禮勿視,非禮勿聽,非禮勿言,非禮勿動。」",
+        question: "此則主要闡述:",
+        options: [
+            { text: "顏淵的為人", correct: false },
+            { text: "孔子對顏淵的教導", correct: false },
+            { text: "行仁的根本方法(克己復禮)及具體綱目「四勿」", correct: true },
+            { text: "仁與禮的關係", correct: false }
+        ]
+    },
+    {
+        passage: "子曰:「志士仁人,無求生以害仁,有殺身以成仁。」",
+        question: "此則主要闡述:",
+        options: [
+            { text: "志士仁人的取捨", correct: false },
+            { text: "生與仁的關係", correct: false },
+            { text: "仁德的最高境界,即為仁可犧牲生命", correct: true },
+            { text: "仁者的為人", correct: false }
+        ]
+    }
+];
+
+// 模式 5: 手法辨識 (4題)
+const rhetoricDatabase = [
+    {
+        passage: "不仁者不可以久處約,不可以長處樂。仁者安仁,知者利仁。",
+        question: "此段在「不仁者」與「仁者」之間主要運用了什麼手法?",
+        options: [
+            { text: "排比", correct: false },
+            { text: "對比", correct: true },
+            { text: "反問", correct: false },
+            { text: "比喻", correct: false }
+        ]
+    },
+    {
+        passage: "君子去仁,惡乎成名?",
+        question: "此句運用了什麼手法?",
+        options: [
+            { text: "設問", correct: false },
+            { text: "反問", correct: true },
+            { text: "比喻", correct: false },
+            { text: "排比", correct: false }
+        ]
+    },
+    {
+        passage: "為仁由己,而由人乎哉?",
+        question: "此句運用了什麼手法?",
+        options: [
+            { text: "設問", correct: false },
+            { text: "反問", correct: true },
+            { text: "對比", correct: false },
+            { text: "誇飾", correct: false }
+        ]
+    },
+    {
+        passage: "「非禮勿視,非禮勿聽,非禮勿言,非禮勿動。」",
+        question: "「四勿」部分主要運用了什麼手法?",
+        options: [
+            { text: "比喻", correct: false },
+            { text: "排比", correct: true },
+            { text: "反問", correct: false },
+            { text: "誇飾", correct: false }
+        ]
+    }
+];
+
+// 模式 6: 人物事跡配對 (4對)
+const peopleDatabase = [
+    { name: "文天祥", quote: "「人生自古誰無死,留取丹心照汗青。」" },
+    { name: "譚嗣同", quote: "「我自橫刀向天笑,去留肝膽兩昆侖。」" },
+    { name: "屈原", quote: "「亦余心之所善兮,雖九死其猶未悔。」" },
+    { name: "比干", quote: "孔子譽其為「殷有三仁」之一" }
+];
+
+/* ================= 遊戲狀態 ================= */
+let currentActiveTabKey = 'vocab';
+let gameScores = { vocab: 0, sentence: 0, translate: 0, theme: 0, rhetoric: 0, people: 0 };
+let fullMarks  = { vocab: 100, sentence: 100, translate: 100, theme: 100, rhetoric: 100, people: 100 };
+
+let vocabSelectionMemory = [];
+
+let sentenceDeck = [];
+let sentenceIndex = 0;
+let sentenceFirstTry = true;
+
+let translateDeck = [];
+let translateIndex = 0;
+let translateFirstTry = true;
+
+let themeDeck = [];
+let themeIndex = 0;
+let themeFirstTry = true;
+
+let rhetoricDeck = [];
+let rhetoricIndex = 0;
+let rhetoricFirstTry = true;
+
+let peopleSelectionMemory = [];
+
+/* ================= 工具函數 ================= */
+function addGamePoints(amount) {
+    gameScores[currentActiveTabKey] += amount;
+    if (gameScores[currentActiveTabKey] < 0) gameScores[currentActiveTabKey] = 0;
+    document.getElementById('score-current').textContent = gameScores[currentActiveTabKey];
+}
+
+function shuffle(array) {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+/* ================= MODE SWITCH ================= */
+function switchGameMode(mode) {
+    const tabs = ['vocab', 'sentence', 'translate', 'theme', 'rhetoric', 'people'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`btn-mode-${t}`);
+        if (btn) btn.classList.remove('active');
+        const view = document.getElementById(`${t}-view`);
+        if (view) view.style.display = 'none';
+        const container = document.getElementById(`${t}-container`);
+        if (container) container.style.display = 'none';
+    });
+
+    const activeBtn = document.getElementById(`btn-mode-${mode}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    const activeView = document.getElementById(`${mode}-view`);
+    if (activeView) activeView.style.display = 'block';
+    const activeContainer = document.getElementById(`${mode}-container`);
+    if (activeContainer) activeContainer.style.display = 'block';
+
+    currentActiveTabKey = mode;
+
+    const labels = {
+        vocab: "🧩 字詞配對分數:",
+        sentence: "📖 句意選擇分數:",
+        translate: "✍️ 翻譯填空分數:",
+        theme: "📌 主旨判斷分數:",
+        rhetoric: "🎭 手法辨識分數:",
+        people: "⚔️ 人物事跡分數:"
+    };
+    document.getElementById('score-label').textContent = labels[mode];
+    document.getElementById('score-current').textContent = gameScores[mode];
+    document.getElementById('score-full').textContent = fullMarks[mode];
+
+    if (mode === 'vocab') buildVocabGame();
+    else if (mode === 'sentence') prepareSentenceQuiz();
+    else if (mode === 'translate') prepareTranslateQuiz();
+    else if (mode === 'theme') prepareThemeQuiz();
+    else if (mode === 'rhetoric') prepareRhetoricQuiz();
+    else if (mode === 'people') buildPeopleGame();
+}
+
+/* ================= MODE 1: 字詞配對 ================= */
+function buildVocabGame() {
+    vocabSelectionMemory = [];
+    gameScores['vocab'] = 0;
+    if (currentActiveTabKey === 'vocab') {
+        document.getElementById('score-current').textContent = 0;
+    }
+
+    const termsCol = document.getElementById('vocab-terms');
+    const defsCol = document.getElementById('vocab-defs');
+    termsCol.innerHTML = '';
+    defsCol.innerHTML = '';
+
+    // 左列字詞:隨機排序
+    const shuffledTerms = shuffle(vocabDatabase);
+    shuffledTerms.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'card vocab-card';
+        el.textContent = item.term;
+        el.setAttribute('data-matchkey', item.term);
+        el.onclick = function() { handleVocabClick(el); };
+        termsCol.appendChild(el);
+    });
+
+    // 右列釋義:隨機排序
+    const shuffledDefs = shuffle(vocabDatabase);
+    shuffledDefs.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'card vocab-card';
+        el.textContent = item.explain;
+        el.setAttribute('data-matchkey', item.term);
+        el.onclick = function() { handleVocabClick(el); };
+        defsCol.appendChild(el);
+    });
+}
+
+function handleVocabClick(element) {
+    if (element.classList.contains('matched') || vocabSelectionMemory.includes(element)) return;
+    if (vocabSelectionMemory.length >= 2) return;
+
+    element.classList.add('selected');
+    vocabSelectionMemory.push(element);
+
+    if (vocabSelectionMemory.length === 2) {
+        const c1 = vocabSelectionMemory[0];
+        const c2 = vocabSelectionMemory[1];
+        if (c1.getAttribute('data-matchkey') === c2.getAttribute('data-matchkey')) {
+            setTimeout(() => {
+                c1.className = 'card matched';
+                c2.className = 'card matched';
+                vocabSelectionMemory = [];
+                addGamePoints(10);
+            }, 250);
+        } else {
+            setTimeout(() => {
+                c1.classList.remove('selected');
+                c2.classList.remove('selected');
+                vocabSelectionMemory = [];
+                addGamePoints(-3);
+            }, 800);
+        }
+    }
+}
+
+/* ================= MODE 2: 句意選擇 ================= */
+function prepareSentenceQuiz() {
+    sentenceDeck = shuffle(sentenceDatabase);
+    sentenceIndex = 0;
+    gameScores['sentence'] = 0;
+    if (currentActiveTabKey === 'sentence') document.getElementById('score-current').textContent = 0;
+    loadSentenceQuestion();
+}
+
+function loadSentenceQuestion() {
+    if (sentenceIndex >= sentenceDeck.length) {
+        document.getElementById('sentence-progress').textContent = "全部完成!🎉";
+        document.getElementById('sentence-passage').textContent = "恭喜!";
+        document.getElementById('sentence-question').textContent = "已答完全部題目!";
+        document.getElementById('sentence-options').innerHTML = "";
+        document.getElementById('sentence-feedback').innerHTML = "<span class='feedback-correct'>太棒了!</span>";
+        document.getElementById('sentence-next-btn').style.display = 'none';
+        return;
+    }
+
+    sentenceFirstTry = true;
+    const q = sentenceDeck[sentenceIndex];
+    document.getElementById('sentence-progress').textContent = `題目 ${sentenceIndex + 1} / ${sentenceDeck.length}`;
+    document.getElementById('sentence-passage').textContent = q.passage;
+    document.getElementById('sentence-question').textContent = q.question;
+
+    const optsContainer = document.getElementById('sentence-options');
+    optsContainer.innerHTML = "";
+    const shuffledOpts = shuffle(q.options);
+    shuffledOpts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt.text}`;
+        btn.setAttribute('data-correct', opt.correct ? '1' : '0');
+        btn.onclick = function() { handleSentenceOption(this); };
+        optsContainer.appendChild(btn);
+    });
+
+    document.getElementById('sentence-feedback').innerHTML = "";
+    document.getElementById('sentence-next-btn').style.display = 'none';
+}
+
+function handleSentenceOption(btn) {
+    if (document.getElementById('sentence-next-btn').style.display === 'inline-block') return;
+    const isCorrect = btn.getAttribute('data-correct') === '1';
+    const feedback = document.getElementById('sentence-feedback');
+    document.querySelectorAll('#sentence-options .option-btn').forEach(b => b.disabled = true);
+
+    if (isCorrect) {
+        btn.classList.add('correct');
+        feedback.innerHTML = "<span class='feedback-correct'>✓ 答對了!</span>";
+        document.getElementById('sentence-next-btn').style.display = 'inline-block';
+        document.getElementById('sentence-next-btn').focus();
+        if (sentenceFirstTry) addGamePoints(20);
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('#sentence-options .option-btn').forEach(b => {
+            if (b.getAttribute('data-correct') === '1') b.classList.add('correct');
+        });
+        feedback.innerHTML = "<span class='feedback-wrong'>✗ 再想想!</span><div class='feedback-hint'>提示:留意「約」、「安仁」、「利仁」等字面意思。</div>";
+        sentenceFirstTry = false;
+    }
+}
+
+function nextSentenceQuestion() { sentenceIndex++; loadSentenceQuestion(); }
+function resetSentenceQuiz() { prepareSentenceQuiz(); }
+
+/* ================= MODE 3: 翻譯填空 ================= */
+function prepareTranslateQuiz() {
+    translateDeck = shuffle(translateDatabase);
+    translateIndex = 0;
+    gameScores['translate'] = 0;
+    if (currentActiveTabKey === 'translate') document.getElementById('score-current').textContent = 0;
+    loadTranslateQuestion();
+}
+
+function loadTranslateQuestion() {
+    if (translateIndex >= translateDeck.length) {
+        document.getElementById('translate-progress').textContent = "全部完成!🎉";
+        document.getElementById('translate-passage').textContent = "恭喜!";
+        document.getElementById('translate-prompt').textContent = "已答完全部題目!";
+        document.getElementById('translate-input').style.display = 'none';
+        document.getElementById('translate-feedback').innerHTML = "<span class='feedback-correct'>太棒了!</span>";
+        document.getElementById('translate-next-btn').style.display = 'none';
+        document.getElementById('translate-reference').classList.remove('show');
+        return;
+    }
+
+    translateFirstTry = true;
+    const q = translateDeck[translateIndex];
+    document.getElementById('translate-progress').textContent = `題目 ${translateIndex + 1} / ${translateDeck.length}`;
+    document.getElementById('translate-passage').textContent = q.passage;
+    document.getElementById('translate-prompt').textContent = "請輸入白話翻譯(批改會比對關鍵詞):";
+
+    const input = document.getElementById('translate-input');
+    input.value = "";
+    input.style.display = 'inline-block';
+    input.disabled = false;
+    input.focus();
+
+    document.getElementById('translate-feedback').innerHTML = "";
+    document.getElementById('translate-next-btn').style.display = 'none';
+    document.getElementById('translate-reference').classList.remove('show');
+}
+
+function checkTranslateAnswer() {
+    const input = document.getElementById('translate-input');
+    if (input.disabled) return;
+    const userAns = input.value.trim();
+    if (!userAns) {
+        document.getElementById('translate-feedback').innerHTML = "<span class='feedback-wrong'>請輸入翻譯。</span>";
+        return;
+    }
+
+    const q = translateDeck[translateIndex];
+    const userNorm = userAns.replace(/[，。；、,. ;:]/g, '');
+    const matchedKeywords = q.keywords.filter(kw => userNorm.includes(kw));
+    const isComplete = matchedKeywords.length === q.keywords.length;
+
+    const feedback = document.getElementById('translate-feedback');
+    if (isComplete) {
+        feedback.innerHTML = `<span class='feedback-correct'>✓ 翻譯包含所有關鍵詞!</span><div class='feedback-hint'>命中關鍵詞:${matchedKeywords.join('、')}</div>`;
+        input.disabled = true;
+        document.getElementById('translate-next-btn').style.display = 'inline-block';
+        document.getElementById('translate-next-btn').focus();
+        document.getElementById('translate-ref-text').textContent = q.reference;
+        document.getElementById('translate-reference').classList.add('show');
+        if (translateFirstTry) addGamePoints(20);
+    } else {
+        const missing = q.keywords.filter(kw => !matchedKeywords.includes(kw));
+        feedback.innerHTML = `<span class='feedback-wrong'>✗ 部分關鍵詞未命中。</span><div class='feedback-hint'>你的翻譯需要包含「${q.keywords.join('」、「')}」等詞。尚缺:${missing.join('、')}</div>`;
+        translateFirstTry = false;
+        input.focus();
+        input.select();
+    }
+}
+
+function nextTranslateQuestion() { translateIndex++; loadTranslateQuestion(); }
+function resetTranslateQuiz() { prepareTranslateQuiz(); }
+
+/* ================= MODE 4: 主旨判斷 ================= */
+function prepareThemeQuiz() {
+    themeDeck = shuffle(themeDatabase);
+    themeIndex = 0;
+    gameScores['theme'] = 0;
+    if (currentActiveTabKey === 'theme') document.getElementById('score-current').textContent = 0;
+    loadThemeQuestion();
+}
+
+function loadThemeQuestion() {
+    if (themeIndex >= themeDeck.length) {
+        document.getElementById('theme-progress').textContent = "全部完成!🎉";
+        document.getElementById('theme-passage').textContent = "恭喜!";
+        document.getElementById('theme-question').textContent = "已答完全部題目!";
+        document.getElementById('theme-options').innerHTML = "";
+        document.getElementById('theme-feedback').innerHTML = "<span class='feedback-correct'>太棒了!</span>";
+        document.getElementById('theme-next-btn').style.display = 'none';
+        return;
+    }
+
+    themeFirstTry = true;
+    const q = themeDeck[themeIndex];
+    document.getElementById('theme-progress').textContent = `題目 ${themeIndex + 1} / ${themeDeck.length}`;
+    document.getElementById('theme-passage').textContent = q.passage;
+    document.getElementById('theme-question').textContent = q.question;
+
+    const optsContainer = document.getElementById('theme-options');
+    optsContainer.innerHTML = "";
+    const shuffledOpts = shuffle(q.options);
+    shuffledOpts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt.text}`;
+        btn.setAttribute('data-correct', opt.correct ? '1' : '0');
+        btn.onclick = function() { handleThemeOption(this); };
+        optsContainer.appendChild(btn);
+    });
+
+    document.getElementById('theme-feedback').innerHTML = "";
+    document.getElementById('theme-next-btn').style.display = 'none';
+}
+
+function handleThemeOption(btn) {
+    if (document.getElementById('theme-next-btn').style.display === 'inline-block') return;
+    const isCorrect = btn.getAttribute('data-correct') === '1';
+    const feedback = document.getElementById('theme-feedback');
+    document.querySelectorAll('#theme-options .option-btn').forEach(b => b.disabled = true);
+
+    if (isCorrect) {
+        btn.classList.add('correct');
+        feedback.innerHTML = "<span class='feedback-correct'>✓ 答對了!</span>";
+        document.getElementById('theme-next-btn').style.display = 'inline-block';
+        document.getElementById('theme-next-btn').focus();
+        if (themeFirstTry) addGamePoints(20);
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('#theme-options .option-btn').forEach(b => {
+            if (b.getAttribute('data-correct') === '1') b.classList.add('correct');
+        });
+        feedback.innerHTML = "<span class='feedback-wrong'>✗ 再想想!</span><div class='feedback-hint'>提示:注意每則的主要訊息,而非個別詞語。</div>";
+        themeFirstTry = false;
+    }
+}
+
+function nextThemeQuestion() { themeIndex++; loadThemeQuestion(); }
+function resetThemeQuiz() { prepareThemeQuiz(); }
+
+/* ================= MODE 5: 手法辨識 ================= */
+function prepareRhetoricQuiz() {
+    rhetoricDeck = shuffle(rhetoricDatabase);
+    rhetoricIndex = 0;
+    gameScores['rhetoric'] = 0;
+    if (currentActiveTabKey === 'rhetoric') document.getElementById('score-current').textContent = 0;
+    loadRhetoricQuestion();
+}
+
+function loadRhetoricQuestion() {
+    if (rhetoricIndex >= rhetoricDeck.length) {
+        document.getElementById('rhetoric-progress').textContent = "全部完成!🎉";
+        document.getElementById('rhetoric-passage').textContent = "恭喜!";
+        document.getElementById('rhetoric-question').textContent = "已答完全部題目!";
+        document.getElementById('rhetoric-options').innerHTML = "";
+        document.getElementById('rhetoric-feedback').innerHTML = "<span class='feedback-correct'>太棒了!</span>";
+        document.getElementById('rhetoric-next-btn').style.display = 'none';
+        return;
+    }
+
+    rhetoricFirstTry = true;
+    const q = rhetoricDeck[rhetoricIndex];
+    document.getElementById('rhetoric-progress').textContent = `題目 ${rhetoricIndex + 1} / ${rhetoricDeck.length}`;
+    document.getElementById('rhetoric-passage').textContent = q.passage;
+    document.getElementById('rhetoric-question').textContent = q.question;
+
+    const optsContainer = document.getElementById('rhetoric-options');
+    optsContainer.innerHTML = "";
+    const shuffledOpts = shuffle(q.options);
+    shuffledOpts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt.text}`;
+        btn.setAttribute('data-correct', opt.correct ? '1' : '0');
+        btn.onclick = function() { handleRhetoricOption(this); };
+        optsContainer.appendChild(btn);
+    });
+
+    document.getElementById('rhetoric-feedback').innerHTML = "";
+    document.getElementById('rhetoric-next-btn').style.display = 'none';
+}
+
+function handleRhetoricOption(btn) {
+    if (document.getElementById('rhetoric-next-btn').style.display === 'inline-block') return;
+    const isCorrect = btn.getAttribute('data-correct') === '1';
+    const feedback = document.getElementById('rhetoric-feedback');
+    document.querySelectorAll('#rhetoric-options .option-btn').forEach(b => b.disabled = true);
+
+    if (isCorrect) {
+        btn.classList.add('correct');
+        feedback.innerHTML = "<span class='feedback-correct'>✓ 答對了!</span>";
+        document.getElementById('rhetoric-next-btn').style.display = 'inline-block';
+        document.getElementById('rhetoric-next-btn').focus();
+        if (rhetoricFirstTry) addGamePoints(20);
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('#rhetoric-options .option-btn').forEach(b => {
+            if (b.getAttribute('data-correct') === '1') b.classList.add('correct');
+        });
+        feedback.innerHTML = "<span class='feedback-wrong'>✗ 再想想!</span><div class='feedback-hint'>提示:留意句子的句式特徵——是提問還是強調?</div>";
+        rhetoricFirstTry = false;
+    }
+}
+
+function nextRhetoricQuestion() { rhetoricIndex++; loadRhetoricQuestion(); }
+function resetRhetoricQuiz() { prepareRhetoricQuiz(); }
+
+/* ================= MODE 6: 人物事跡配對 ================= */
+function buildPeopleGame() {
+    peopleSelectionMemory = [];
+    gameScores['people'] = 0;
+    if (currentActiveTabKey === 'people') document.getElementById('score-current').textContent = 0;
+
+    const grid = document.getElementById('people-grid');
+    grid.innerHTML = '';
+
+    let cardDeck = [];
+    peopleDatabase.forEach((item) => {
+        cardDeck.push({ text: item.name, matchKey: item.name });
+        cardDeck.push({ text: item.quote, matchKey: item.name });
+    });
+
+    cardDeck = shuffle(cardDeck);
+
+    cardDeck.forEach(card => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.textContent = card.text;
+        el.style.fontSize = "0.95rem";
+        el.style.lineHeight = "1.3";
+        el.setAttribute('data-matchkey', card.matchKey);
+        el.onclick = function() { handlePeopleClick(el); };
+        grid.appendChild(el);
+    });
+}
+
+function handlePeopleClick(element) {
+    if (element.classList.contains('matched') || peopleSelectionMemory.includes(element)) return;
+    if (peopleSelectionMemory.length >= 2) return;
+
+    element.classList.add('selected');
+    peopleSelectionMemory.push(element);
+
+    if (peopleSelectionMemory.length === 2) {
+        const c1 = peopleSelectionMemory[0];
+        const c2 = peopleSelectionMemory[1];
+        if (c1.getAttribute('data-matchkey') === c2.getAttribute('data-matchkey')) {
+            setTimeout(() => {
+                c1.className = 'card matched';
+                c2.className = 'card matched';
+                peopleSelectionMemory = [];
+                addGamePoints(25);
+            }, 250);
+        } else {
+            setTimeout(() => {
+                c1.classList.remove('selected');
+                c2.classList.remove('selected');
+                peopleSelectionMemory = [];
+                addGamePoints(-5);
+            }, 800);
+        }
+    }
+}
+
+/* ================= INIT ================= */
+window.onload = function() {
+    switchGameMode('vocab');
+};
+</script>
+
+</body>
+</html>
